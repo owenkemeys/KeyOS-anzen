@@ -2,7 +2,11 @@ use anzen_cold_signer::benchmark::{
     transcript_hash, BenchmarkConfig, BenchmarkError as GraphError, PolicyCommitment, Sha256,
     VisitError, BIP341_NUMS_XONLY,
 };
-use secp256k1::{Keypair, Message, Scalar, Secp256k1, SecretKey, XOnlyPublicKey};
+use k256::{
+    elliptic_curve::{sec1::ToEncodedPoint, PrimeField},
+    schnorr::SigningKey,
+    AffinePoint, ProjectivePoint, PublicKey, Scalar,
+};
 use sha2::{Digest, Sha256 as Sha2};
 
 const FIXED_PHONE_XONLY_PUBLIC_KEY: [u8; 32] = [
@@ -85,28 +89,17 @@ impl Sha256 for RustSha256 {
 /// The caller supplies KeyOS's app-isolated seed. The seed never leaves this
 /// function; only the x-only public key and a transcript commitment are returned.
 pub fn run_demo(app_seed: [u8; 32]) -> Result<DemoResult, DemoError> {
-    let secp = Secp256k1::new();
-    let secret_key = derive_demo_key(app_seed)?;
-    let keypair = Keypair::from_secret_key(&secp, &secret_key);
-    let (hww_xonly, _) = keypair.x_only_public_key();
+    let signing_key = derive_demo_key(app_seed)?;
+    let verifying_key = signing_key.verifying_key();
+    let hww_xonly: [u8; 32] = verifying_key.to_bytes().into();
 
     let mut hasher = RustSha256;
-    let policy = PolicyCommitment::new(
-        &mut hasher,
-        FIXED_PHONE_XONLY_PUBLIC_KEY,
-        hww_xonly.serialize(),
-    );
-    let nums =
-        XOnlyPublicKey::from_slice(&BIP341_NUMS_XONLY).map_err(|_| DemoError::InvalidNumsPoint)?;
-    let tweak =
-        Scalar::from_be_bytes(policy.output_key_tweak).map_err(|_| DemoError::InvalidTweak)?;
-    let (vault_output_key, _) = nums
-        .add_tweak(&secp, &tweak)
-        .map_err(|_| DemoError::InvalidTweak)?;
+    let policy = PolicyCommitment::new(&mut hasher, FIXED_PHONE_XONLY_PUBLIC_KEY, hww_xonly);
+    let vault_output_key = taproot_output_key(policy.output_key_tweak)?;
     let config = BenchmarkConfig::deterministic(
         &mut hasher,
         12,
-        vault_output_key.serialize(),
+        vault_output_key,
         policy.cooperative_leaf_hash,
     )?;
 
@@ -114,12 +107,13 @@ pub fn run_demo(app_seed: [u8; 32]) -> Result<DemoResult, DemoError> {
     let mut transcript = [0_u8; 32];
     let mut verified = 0_u8;
     let summary = config.for_each_signature_job(&mut hasher, |job| {
-        let message = Message::from_digest(job.sighash);
-        let signature = secp.sign_schnorr_no_aux_rand(&message, &keypair);
-        secp.verify_schnorr(&signature, &message, &hww_xonly)
+        let signature = signing_key
+            .sign_raw(&job.sighash, &[0_u8; 32])
             .map_err(|_| DemoError::InvalidSignature)?;
-        let mut signature_bytes = [0_u8; 64];
-        signature_bytes.copy_from_slice(signature.as_ref());
+        verifying_key
+            .verify_raw(&job.sighash, &signature)
+            .map_err(|_| DemoError::InvalidSignature)?;
+        let signature_bytes: [u8; 64] = signature.to_bytes();
         transcript = transcript_hash(
             &mut transcript_hasher,
             transcript,
@@ -134,18 +128,35 @@ pub fn run_demo(app_seed: [u8; 32]) -> Result<DemoResult, DemoError> {
         transactions: summary.transactions,
         signatures: summary.signature_jobs,
         verified_signatures: verified,
-        public_key: hww_xonly.serialize(),
+        public_key: hww_xonly,
         transcript,
     })
 }
 
-fn derive_demo_key(app_seed: [u8; 32]) -> Result<SecretKey, DemoError> {
+fn derive_demo_key(app_seed: [u8; 32]) -> Result<SigningKey, DemoError> {
     let digest: [u8; 32] = Sha2::new()
         .chain_update(KEY_DOMAIN)
         .chain_update(app_seed)
         .finalize()
         .into();
-    SecretKey::from_slice(&digest).map_err(|_| DemoError::InvalidKey)
+    SigningKey::from_bytes(&digest).map_err(|_| DemoError::InvalidKey)
+}
+
+fn taproot_output_key(tweak_bytes: [u8; 32]) -> Result<[u8; 32], DemoError> {
+    let mut compressed_nums = [0_u8; 33];
+    compressed_nums[0] = 0x02;
+    compressed_nums[1..].copy_from_slice(&BIP341_NUMS_XONLY);
+    let nums =
+        PublicKey::from_sec1_bytes(&compressed_nums).map_err(|_| DemoError::InvalidNumsPoint)?;
+    let tweak = Option::<Scalar>::from(Scalar::from_repr(tweak_bytes.into()))
+        .ok_or(DemoError::InvalidTweak)?;
+    let output_point =
+        ProjectivePoint::from(*nums.as_affine()) + ProjectivePoint::GENERATOR * tweak;
+    let encoded = AffinePoint::from(output_point).to_encoded_point(true);
+    let x = encoded.x().ok_or(DemoError::InvalidTweak)?;
+    let mut output_key = [0_u8; 32];
+    output_key.copy_from_slice(x);
+    Ok(output_key)
 }
 
 fn hex_prefix(bytes: &[u8], count: usize) -> String {
@@ -170,7 +181,22 @@ mod tests {
         assert_eq!(result.transactions, 28);
         assert_eq!(result.signatures, 39);
         assert_eq!(result.verified_signatures, 39);
-        assert_ne!(result.transcript, [0_u8; 32]);
+        assert_eq!(
+            result.public_key,
+            [
+                0x51, 0xb6, 0x50, 0xe6, 0x88, 0xb5, 0x7c, 0x62, 0x4e, 0x5b, 0x8f, 0xba, 0x14, 0x1d,
+                0xbd, 0x46, 0x01, 0xc6, 0x8e, 0xb4, 0x81, 0xf4, 0xc7, 0x38, 0x84, 0xfd, 0x89, 0x95,
+                0x55, 0x7e, 0x90, 0xb4,
+            ]
+        );
+        assert_eq!(
+            result.transcript,
+            [
+                0xb5, 0x50, 0x14, 0x86, 0x5a, 0x57, 0x07, 0x97, 0xcc, 0xfb, 0x16, 0xb4, 0xb9, 0xd5,
+                0xdc, 0xec, 0xad, 0x8f, 0x7e, 0x05, 0x57, 0xbb, 0xec, 0x85, 0xf7, 0x26, 0x96, 0x64,
+                0x50, 0xa9, 0x53, 0xa6,
+            ]
+        );
     }
 
     #[test]
