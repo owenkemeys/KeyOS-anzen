@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/anzen-policy-engine",
     "crates/anzen-prime-core",
     "preview",
     "vendor/anzen-cold-signer",
