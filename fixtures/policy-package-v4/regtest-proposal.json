@@ -1,0 +1,288 @@
+{
+  "version": 4,
+  "kind": "vault-policy",
+  "manifest": {
+    "version": 4,
+    "created_at": 1786708800,
+    "network": "regtest",
+    "vault_descriptor": "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,{multi_a(2,b90c0f8da23429c1f36288f53c46f50c54660804dcdd04fe342a3fd3d9e8c9ac,906979e124fa1d21104bbcfce84d825cb1269fa1dc95a0a27e9bfe120d88e97c),{and_v(v:older(61200),pk(b90c0f8da23429c1f36288f53c46f50c54660804dcdd04fe342a3fd3d9e8c9ac)),and_v(v:older(65535),pk(906979e124fa1d21104bbcfce84d825cb1269fa1dc95a0a27e9bfe120d88e97c))}})#a303ks35",
+    "vault_address": "bcrt1ppc630jlwa8nykupxpam7rknknpx8mljnll04kjn4cst6zm20t7rslwygna",
+    "monthly_limit_sats": 10000000,
+    "emergency_access_limit_sats": 50000000,
+    "fee_rate_sat_vb": 1,
+    "total_input_sats": 200000000,
+    "allowance_count": 12,
+    "rollover": {
+      "psbt_file": "rollover.psbt",
+      "unsigned_txid": "303a2fdff90abc3f3ebed24d54ef0e230d5cf5fd4a41fa703ad44ce62293201d",
+      "fee_sats": 205
+    },
+    "allowance_vout": 0,
+    "allowance_value_sats": 120002417,
+    "remainder_vout": 1,
+    "remainder_value_sats": 79997378,
+    "allowances": [
+      {
+        "step": 1,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 120002417,
+        "hot_address": "bcrt1pet7ep3czdu9k4wvdlz2fp5p8x2yp7t6ttyqg2c6cmh0lgeuu9laspse7la",
+        "authorization": {
+          "psbt_file": "allowances/01/authorization.psbt",
+          "unsigned_txid": "79b96afa2190ff7f7392ce0b1831c62d3ce946e5a23d3f3ae20260f1dddfb45a",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/01/revocation.psbt",
+          "unsigned_txid": "81688698e0d9739afe5f2d6ca38b2e38a5a6af07e4116133d176ee0ac703b85c",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 2,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 110002212,
+        "hot_address": "bcrt1pgxxyvcmdncdxs06cudd5yvmwwahaesaj6n3eu7st7x4sw9hrchaqg4dc89",
+        "authorization": {
+          "psbt_file": "allowances/02/authorization.psbt",
+          "unsigned_txid": "75d3cb2ec98de70e2566bdadad89b93148c41cbca09d2c1afe0d792c912e86f7",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/02/revocation.psbt",
+          "unsigned_txid": "ccfa45b907fc8595f3fc0de752ade5add57eccd9540babcfe4d4409b231bf44f",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 3,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 100002007,
+        "hot_address": "bcrt1pjvtc2mkj9vmfneuj7w9dsqle70a040ms5tyfswhhz4vjyskznj5q9yg9s8",
+        "authorization": {
+          "psbt_file": "allowances/03/authorization.psbt",
+          "unsigned_txid": "bc91c2ffcffcf058f8bc440ff61d921cf8b1c7b2dbc71fe109cbef0b1136870e",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/03/revocation.psbt",
+          "unsigned_txid": "4b008067213fb47efca8ef6231290f8f505dd10eae11627d2bed33da9477f572",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 4,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 90001802,
+        "hot_address": "bcrt1paecncecu260mkwvsr63lw5v4s496v9gfn2en56hv4f0d2w2j97fspc8rg9",
+        "authorization": {
+          "psbt_file": "allowances/04/authorization.psbt",
+          "unsigned_txid": "461bd5e965826760e391dd3fe7b62f3358a05991a8206baf24428b313b5ea864",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/04/revocation.psbt",
+          "unsigned_txid": "fddd9750c24007767f10162caa705812f35b09ccb2dca9c21fbf3b7cc7dfe7f0",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 5,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 80001597,
+        "hot_address": "bcrt1p4rsld9ryjhte00drc0r23r8ngd63xrzh5s4fvmy6q5yt70xzlsdqzdszde",
+        "authorization": {
+          "psbt_file": "allowances/05/authorization.psbt",
+          "unsigned_txid": "deda711ad82e723bf77a2a35e144e80641ea7cbc836b9ce367e028a4c0734897",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/05/revocation.psbt",
+          "unsigned_txid": "95fd6021384f1f885a42dc6e591b1efc91c403422c5351d5deaff59cc5481960",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 6,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 70001392,
+        "hot_address": "bcrt1pr896td3mmjl5vc57mutumgfmeet8hyzy9w6zr6hg5vhrtppevlpsmq6cuw",
+        "authorization": {
+          "psbt_file": "allowances/06/authorization.psbt",
+          "unsigned_txid": "b4120d60e8a98b9f68be9dd8764a41d791a462d1b61ee69832981b1a227d770b",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/06/revocation.psbt",
+          "unsigned_txid": "3ea15bb9217978f537367731d9080b7ef46408376d7a3ff48e7481c1922c5a9d",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 7,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 60001187,
+        "hot_address": "bcrt1p5ju3f0m0dz3y4hgynde804krzz2grxr8chytzgew4fxmk5lunzlq5gm0ln",
+        "authorization": {
+          "psbt_file": "allowances/07/authorization.psbt",
+          "unsigned_txid": "ccf3603cac1eb70befc435e4fdd9590b894c0fa0a38fc8fce33f3c054996557f",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/07/revocation.psbt",
+          "unsigned_txid": "cfc1fc9aee9103d8392829edb1ab49dafe29869eda9daf450185ffc587273ffe",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 8,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 50000982,
+        "hot_address": "bcrt1pan4szzggtg9rudp5lt4tyr5aprjmflwg2wxy8zarue6gxjw47f0syp32a8",
+        "authorization": {
+          "psbt_file": "allowances/08/authorization.psbt",
+          "unsigned_txid": "5ad7e2071e7ba05c6fd29a43f5e7fe515b02ec1a87057e3a63dfc6ead46a6441",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/08/revocation.psbt",
+          "unsigned_txid": "b0fc1335d054284c2913b11528ef43f4d56188f6685e3ba6d5346b7bdc380314",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 9,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 40000777,
+        "hot_address": "bcrt1p5mmme8n7pqk4x55sky33h3xxu0hp9tnuszt78szmhv8su25a4y3sp4mz8y",
+        "authorization": {
+          "psbt_file": "allowances/09/authorization.psbt",
+          "unsigned_txid": "c1848f858f20e6827eb5ea6e25b14fe991da0da18e6ba41823940ede2f00324b",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/09/revocation.psbt",
+          "unsigned_txid": "85cf17e71e3ae7f5efe3cb2075da6d01cd7ec9a6413d839af8e8340e92e8d0f7",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 10,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 30000572,
+        "hot_address": "bcrt1pxy2wupspts5wl3ctseak4g7j42h6mumaqlq6zzrn6qesraqlqz7qv0dxws",
+        "authorization": {
+          "psbt_file": "allowances/10/authorization.psbt",
+          "unsigned_txid": "c8b44ffce96596e49c1bdcfbfd77d53f2653802f80bdb9dd83f8afa4131aa92c",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/10/revocation.psbt",
+          "unsigned_txid": "17eb7559300dc2c11bb88a762e42a4e65d5ed0f37a396929d7ddd8f9e8bdad64",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 11,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 20000367,
+        "hot_address": "bcrt1pwd5vfca5jmgxjnd9mdz4mkzn6nyag2kqrqlmuj78ykgvy6vdc60q32t3yh",
+        "authorization": {
+          "psbt_file": "allowances/11/authorization.psbt",
+          "unsigned_txid": "23e95c515848ebbbc01fdec008c2f84a2d1e21b39091a185e8bf0f6ea82fade5",
+          "fee_sats": 205
+        },
+        "revocation": {
+          "psbt_file": "allowances/11/revocation.psbt",
+          "unsigned_txid": "73e10bb2c6c0d496a7f07db78cdf39aa84de94cbae2cd24ca17055459ace36c7",
+          "fee_sats": 162
+        }
+      },
+      {
+        "step": 12,
+        "delay_seconds": 2592256,
+        "delay_sequence": 4199367,
+        "chain_value_sats": 10000162,
+        "hot_address": "bcrt1pgk6qmca8k3yj4kerl792kpa46uhs20xtc99dwrm35q7jh5gvrlsswz9cr9",
+        "authorization": {
+          "psbt_file": "allowances/12/authorization.psbt",
+          "unsigned_txid": "a119f85e05c60b7ea6bfb17d4b7281232360ebb9d175d9199f581b470a43d123",
+          "fee_sats": 162
+        },
+        "revocation": {
+          "psbt_file": "allowances/12/revocation.psbt",
+          "unsigned_txid": "aa9413079c6e53709500e77232b7b491f2bdaf400a05e9e23aa8b113a7231c07",
+          "fee_sats": 162
+        }
+      }
+    ],
+    "emergency_access": {
+      "amount_sats": 50000000,
+      "delay_seconds": 605184,
+      "delay_sequence": 4195486,
+      "hot_address": "bcrt1pmfr3p9j00pfxjh0zmgp99y8zftmd3s5pmedqhyptwy6lm87hf5ssm803es",
+      "staging_vout": 0,
+      "staging_value_sats": 50000162,
+      "vault_change_vout": 1,
+      "vault_change_value_sats": 29997011,
+      "trigger": {
+        "psbt_file": "emergency/trigger.psbt",
+        "unsigned_txid": "b9ace5463b011271e7d6176c333f56ff864604e64d58057d66bac78af401368f",
+        "fee_sats": 205
+      },
+      "withdrawal": {
+        "psbt_file": "emergency/withdrawal.psbt",
+        "unsigned_txid": "0db416e60c0e9b5b8adccddce4a724d427cb669c16ddde8f48d1ab8c85c42867",
+        "fee_sats": 162
+      },
+      "cancellation": {
+        "psbt_file": "emergency/cancellation.psbt",
+        "unsigned_txid": "486bb13a457320c65e72d3a74aa85c77c8a515b889569197cd1851c6c00e5b33",
+        "fee_sats": 162
+      }
+    },
+    "phone_approved": true,
+    "hww_approved": false
+  },
+  "psbts": {
+    "allowances/01/authorization.psbt": "cHNidP8BAIkCAAAAAR0gkyLmTNQ6cPpBSv31XA0jDu9UTdK+Pj+8CvnfLzowAAAAAADHE0AAAoCWmAAAAAAAIlEgyv2QxwJvC2q5jfiUkNAnMogfL0tZAIVjWN3f9GecL/skgI4GAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABAStxFycHAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0Cj+qDc85yQKyhzXlwBpo+OG5X01zX0d/UZWDEUJe97+aeTTVcihHFOPc+0s2H986pDgrZzVzoeFPC4PnqIvz+1YhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/01/revocation.psbt": "cHNidP8BAF4CAAAAAR0gkyLmTNQ6cPpBSv31XA0jDu9UTdK+Pj+8CvnfLzowAAAAAAD/////Ac8WJwcAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK3EXJwcAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQAP6bEos5XV6aEpBPDNxgjaKsgrzVNPQPNiK7bAZBQnzBgCfjJXsiGFop3arFng6E0p/a3jAWJ2Ca89mbXecAmFiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/02/authorization.psbt": "cHNidP8BAIkCAAAAAVq0393xYALiOj89ouVG6TwtxjEYC86Sc3//kCH6arl5AQAAAADHE0AAAoCWmAAAAAAAIlEgQYxGY22eGmg/WONbQjNud2/cw7LU4556C/GrBxbjxfrX6PUFAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASskgI4GAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0AIjJiACsWEnDgmXErESCbGIkGLoX7ZZZ3j0EHIjLiEsSIxcIQO9eFK3R4b48rHKZoeYSQnboMZJmJoqHI1ei9XYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/02/revocation.psbt": "cHNidP8BAF4CAAAAAVq0393xYALiOj89ouVG6TwtxjEYC86Sc3//kCH6arl5AQAAAAD/////AYJ/jgYAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBKySAjgYAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQEeGCb7+Vsz/qlOilfe/iPKWG6HkT3LiYuX/fxLAT1oANT3C2pE/wdrzt0QrjD5NrVjM/OwA9Gr78k2U5St26NNiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/03/authorization.psbt": "cHNidP8BAIkCAAAAAfeGLpEseQ3+GiydoLwcxEgxuYmtrb1mJQ7njckuy9N1AQAAAADHE0AAAoCWmAAAAAAAIlEgkxeFbtIrNpnnkvOK2AP58/r6v3CiyJg69xVZIkLCnKiKUV0FAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASvX6PUFAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0BBeM8B1RIurEVCbJ7IO9q5OdxMa2FKkkE0ukMcW1F3NVLoRwViq6/3H6nA3rB4wUVrMo7quA98SA/mJ0ziIiehYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/03/revocation.psbt": "cHNidP8BAF4CAAAAAfeGLpEseQ3+GiydoLwcxEgxuYmtrb1mJQ7njckuy9N1AQAAAAD/////ATXo9QUAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK9fo9QUAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQN1KOpB9vBINQDUXUrUHdVxJJkVwSMG18SzRkPTj1CVjNp3ULV92PBJsFeRo8bq0K2AV9h1nbsNnpq1QeiF5JQliFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/04/authorization.psbt": "cHNidP8BAIkCAAAAAQ6HNhEL78sJ4R/H27LHsfgckh32D0S8+Fjw/M//wpG8AQAAAADHE0AAAoCWmAAAAAAAIlEg7nE8ZxxWn7s5kB6j91GVhUumFQmaszpq7Kpe1TlSL5M9usQEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASuKUV0FAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0CYalvxtyC4ohclNvGsmOPvwKudcQOrvDtjVXTK0iPQa9z3Agh3aW+gI44UmZZEAOCmDmKw4v1xsNEsTxTxDsRPYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/04/revocation.psbt": "cHNidP8BAF4CAAAAAQ6HNhEL78sJ4R/H27LHsfgckh32D0S8+Fjw/M//wpG8AQAAAAD/////AehQXQUAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK4pRXQUAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQLyD2RB7BEKKb5Br/NL7hQZ5Sf3dC/ixjYCPTbr+k0PmA55cpfw/PDqVfqoBRNPYvIHcXcWiqWnoyo+SKAq24MliFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/05/authorization.psbt": "cHNidP8BAIkCAAAAAWSoXjsxi0Ikr2sgqJFZoFgzL7bnP92R42BngmXp1RtGAQAAAADHE0AAAoCWmAAAAAAAIlEgqOH2lGSV15e9o8PGqIzzQ3UTDFekKpZsmgUIvzzC/BrwIiwEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASs9usQEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0DdBI1mAvtEQ6y3OB94UYJXtp4Io6QD1J6tq9fdIIjZ17Rs4Cpe0CApexLIMsvmq8hOKyU1eYPs7a4qQRJpU0oqYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/05/revocation.psbt": "cHNidP8BAF4CAAAAAWSoXjsxi0Ikr2sgqJFZoFgzL7bnP92R42BngmXp1RtGAQAAAAD/////AZu5xAQAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBKz26xAQAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQNXC/7dWRlDyROO5SiBgVf7tGjN5EdNFyjIhPCQ5SeVcuXN0QPIwpZBytM5ugEu2Mc5AnqInTNSmbo3rPgG/MEBiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/06/authorization.psbt": "cHNidP8BAIkCAAAAAZdIc8CkKOBn45xrg7x86kEG6EThNSp69ztyLtgacdreAQAAAADHE0AAAoCWmAAAAAAAIlEgGcultjvcv0Zint8XzaE7zlZ7kEQrtCHq6KMuNYQ5Z8Oji5MDAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASvwIiwEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0BL6bMzkIyaMLebLG0GedVi8H8MyRGqtINROUNqOvq56FstG6faoUbdh2tzkiwnxY5hh96gyLztvDV+djXxoBLMYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/06/revocation.psbt": "cHNidP8BAF4CAAAAAZdIc8CkKOBn45xrg7x86kEG6EThNSp69ztyLtgacdreAQAAAAD/////AU4iLAQAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK/AiLAQAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQDY5hw3tWyHI2KxTGYBVQcBGq4ShUQYUkhB+ks4/HePzh6t/9JMsH1T/RLGf9kWaW3cg6bUaSjsDUqWseDTz4idiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/07/authorization.psbt": "cHNidP8BAIkCAAAAAQt3fSIaG5gymOYettFipJHXQUp22J2+aJ+LqehgDRK0AQAAAADHE0AAAoCWmAAAAAAAIlEgpLkUv29ookrdBJtyd9bDEJSBmGfFyLEjLqpNu1P8mL5W9PoCAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASuji5MDAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0CeNQXrFK1FNSZfaILZrMLSx7Lfc9KJuaLl+wnh0VzSwl5W6OIm04vfr+5QjIZBmpsC86Dc9q07tVCTeruWuwjBYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/07/revocation.psbt": "cHNidP8BAF4CAAAAAQt3fSIaG5gymOYettFipJHXQUp22J2+aJ+LqehgDRK0AQAAAAD/////AQGLkwMAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK6OLkwMAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQEvx2CRt5H1SyNOWPPvtdvHHcSg2dKo1anF4uternfMJ1CgBSm0FRuIRvYbtylZ1gdIAczEuiYZPUsgevLi3wPNiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/08/authorization.psbt": "cHNidP8BAIkCAAAAAX9VlkkFPD/j/MiPo6APTIkLWdn95DXE7wu3Hqw8YPPMAQAAAADHE0AAAoCWmAAAAAAAIlEg7OsBCQhaCj40NPrqsg6dCOW0/chTjEOLo+Z0g0nV8l8JXWICAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABAStW9PoCAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0CFvHiMf2PiYcOvqO5cNbgifKFvkJiPqd3ooC9AA4UUeoRASHWMbAHIM0jFuUWieJHaEvmwA37dGH5j/0rZa9iaYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/08/revocation.psbt": "cHNidP8BAF4CAAAAAX9VlkkFPD/j/MiPo6APTIkLWdn95DXE7wu3Hqw8YPPMAQAAAAD/////AbTz+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK1b0+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQGjpX1/prqWkqTP3w0RPu0MMSVHYkKlNMNPnpT+Fxw0D2BouHP8W7xhh4+3FwVzdNGpvcum7x+v0u+1wM8YrnEhiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/09/authorization.psbt": "cHNidP8BAIkCAAAAAUFkatTqxt9jOn4FhxrsAltR/uf1Q5rSb1ygex4H4tdaAQAAAADHE0AAAoCWmAAAAAAAIlEgpve8nn4ILVNSkLEjG8TG4+4SrnyAl+PAW7sPDiqdqSO8xckBAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASsJXWICAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0C3E5wrvFzGdREI9kg2XshPwbtogIV5toX/fvjEN7YKLCoj2ERq/ROq5ym9knBtKPFgJWgHftV5lCQL1DxOpSFXYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/09/revocation.psbt": "cHNidP8BAF4CAAAAAUFkatTqxt9jOn4FhxrsAltR/uf1Q5rSb1ygex4H4tdaAQAAAAD/////AWdcYgIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBKwldYgIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQK4isD6ivjmkHAwPkSNF70O16URm7C+4KBv1/r7MOrfrMBf9Q6E1ReRsbkrdKvYngSzn/FkiYalN53HAs+Hhz2diFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/10/authorization.psbt": "cHNidP8BAIkCAAAAAUsyAC/eDpQjGKRrjqEN2pHpT7Elbuq1foLmII+Fj4TBAQAAAADHE0AAAoCWmAAAAAAAIlEgMRTuBgFcKO/HC4Z7aqPSqq+t830HwaEIc9AzAfQfALxvLjEBAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASu8xckBAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0DNkwJpXslSB31VB6adNL00KdmKpmXFyaIG7KmX8RGqlwlGmvzgYsitafWUSADCaoLXUKH+Hxj42ZKQyt9gA+B+YhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/10/revocation.psbt": "cHNidP8BAF4CAAAAAUsyAC/eDpQjGKRrjqEN2pHpT7Elbuq1foLmII+Fj4TBAQAAAAD/////ARrFyQEAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK7zFyQEAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQJ3dMKTXjqLpnVyb7gt4KjTjgHwaZYMxA1GoMm1IYNalTv0ahMkSeysdSg4Oll6r6shfRaFTFCAUnX+Fri+UyRZiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/11/authorization.psbt": "cHNidP8BAIkCAAAAASypGhOkr/iD3bm9gC+AUyY/1Xf9+9wbnOSWZen8T7TIAQAAAADHE0AAAoCWmAAAAAAAIlEgc2jE47SW0GlNpdtFXdhT1MnUKsAYP75LxyWQwmmNxp4il5gAAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABAStvLjEBAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0BdUE9A10wzFqGubpT6D2/zsMjX0W15Hckj20svcfvdQ9nVtJpTPDG3T0uPLC9apQNMKqBXpDWRo75W5+JCfzUWYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "allowances/11/revocation.psbt": "cHNidP8BAF4CAAAAASypGhOkr/iD3bm9gC+AUyY/1Xf9+9wbnOSWZen8T7TIAQAAAAD/////Ac0tMQEAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBK28uMQEAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQJV+jh0CGEU6fhQVFo/y0uS9FqEcM1WbsjcDMhyJQOTNTN73rYPTAc1cPco4MFZqabR7UKFbuYn+7Ljts4MR1jhiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/12/authorization.psbt": "cHNidP8BAF4CAAAAAeWtL6huD7/ohaGRkLMhHi1K+MIIwN4fwLvrSFhRXOkjAQAAAADHE0AAAYCWmAAAAAAAIlEgRbQN46e0SSrbI/+Kqwe11y8FPMvBStcPcaA9K9EMH+EAAAAAAAEBKyKXmAAAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQHSDs26GztNnz5SBg4JcLTHZrZ1l85YapD82dJHAsifiMh775WFdH6V0Ie6HNQJy7YAu47Vg21WAMW+OUBDsXnViFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "allowances/12/revocation.psbt": "cHNidP8BAF4CAAAAAeWtL6huD7/ohaGRkLMhHi1K+MIIwN4fwLvrSFhRXOkjAQAAAAD/////AYCWmAAAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBKyKXmAAAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQIl0Sg6P2CF7BRQ7uxpi54xqq3j23pG6L1/qspEKHzLkplqW1VjzvCPD3JFf4lK81T9xMpdctP+zkVqkQNKfKSxiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "emergency/cancellation.psbt": "cHNidP8BAF4CAAAAAY82AfSKx7pmfQVYTeYERob/Vj8zbBfW53ESATtG5ay5AAAAAAD/////AYDw+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cAAAAAAAEBKyLx+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQD6MZ1L4P8ioVJ2MshsB1s7cn+9alf4uSyhR/3Q0PEkJwS+1CxORDwOI1yMxIRJg+/uSqriMxa1Sc3fGvn7U101iFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "emergency/trigger.psbt": "cHNidP8BAIkCAAAAAR0gkyLmTNQ6cPpBSv31XA0jDu9UTdK+Pj+8CvnfLzowAQAAAAD/////AiLx+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4fTt8kBAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASvCqcQEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0CA8j46Yyn1EAvoM7JsGbGtzXd2IS6vckGAT1hm4UVYmi9BAeTE1OQpRQIeGpCKCXC0I9o6XeT0xnv0GARBz9qXYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA==",
+    "emergency/withdrawal.psbt": "cHNidP8BAF4CAAAAAY82AfSKx7pmfQVYTeYERob/Vj8zbBfW53ESATtG5ay5AAAAAACeBEAAAYDw+gIAAAAAIlEg2kcQlk94Umld4toCUpDiSvbYwoHeWguQK3E1/Z/XTSEAAAAAAAEBKyLx+gIAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4cBAwQAAAAAQRS5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrCVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTQP/LPpkjPEaMqM8DYHREqlLfx6sQVrxZNDu8Kcijzj4r/2ECMh8HeQN+k9EuRum/fM6NUIYdA4+E4alYSzPRC0hiFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wFFuB3DS6wuC+OrN0blyWQC0ce+FDRump/1VIGnibwNjJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpMpA///ALJpIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8rMBCFcBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wGzBLBZXsxyoww+moyuzqFtwHDe84+eqzf+CWCocNG+MRyC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKwgkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6Xy6UpzAYhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsDxD3aPObwlnlOkYxrxUpXLvnA2epAL+mzdRaT5+MQ2fSVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQMQ7wCyaSC5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrKzAIRZQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAUA9Kww3SEWkGl54ST6HSEQS7z86E2CXLEmn6HclaCifpv+Eg2I6XxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqT8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn3Nn/srIRa5DA+NojQpwfNiiPU8RvUMVGYIBNzdBP40Kj/T2ejJrEUCJVXf9GOPrePbAphcOM17bhlo+87WnVlSTZRfJdDMKpNRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYxEr1M8BFyBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6wAEYID+DSXgPYcGE/zTE9TNM37Y4cIrdNtW9PRtOhtKBpGDWAAA=",
+    "rollover.psbt": "cHNidP8BAIkCAAAAARERERERERERERERERERERERERERERERERERERERERERAAAAAAD/////AnEXJwcAAAAAIlEgDjUXy+7p5ktwJg934dp2mEx9/lP/31tKdcQXoW1PX4fCqcQEAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAAAAAAABASsAwusLAAAAACJRIA41F8vu6eZLcCYPd+HadphMff5T/99bSnXEF6FtT1+HAQMEAAAAAEEUuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyawlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk0BG9l46+oYL6Ljv4S5jVNpWClxFk2lr9ZDlnsXaj3kRWMEqhRH5KhfOz34tkHL3i3gvGjrtC5E0mCvPi57pA628YhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBRbgdw0usLgvjqzdG5clkAtHHvhQ0bpqf9VSBp4m8DYyVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTKQP//wCyaSCQaXnhJPodIRBLvPzoTYJcsSafodyVoKJ+m/4SDYjpfKzAQhXAUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsBswSwWV7McqMMPpqMrs6hbcBw3vOPnqs3/glgqHDRvjEcguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaysIJBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8ulKcwGIVwFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrA8Q92jzm8JZ5TpGMa8VKVy75wNnqQC/ps3UWk+fjENn0lVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0MwqkykDEO8AsmkguQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyayswCEWUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsAFAPSsMN0hFpBpeeEk+h0hEEu8/OhNglyxJp+h3JWgon6b/hINiOl8RQIlVd/0Y4+t49sCmFw4zXtuGWj7ztadWVJNlF8l0Mwqk/EPdo85vCWeU6RjGvFSlcu+cDZ6kAv6bN1FpPn4xDZ9zZ/7KyEWuQwPjaI0KcHzYoj1PEb1DFRmCATc3QT+NCo/09noyaxFAiVV3/Rjj63j2wKYXDjNe24ZaPvO1p1ZUk2UXyXQzCqTUW4HcNLrC4L46s3RuXJZALRx74UNG6an/VUgaeJvA2MRK9TPARcgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsABGCA/g0l4D2HBhP80xPUzTN+2OHCK3TbVvT0bTobSgaRg1gAAAA=="
+  }
+}

@@ -13,6 +13,11 @@ to audit, reproduce, and attribute.
 6. Record what the evidence proves: host test, Windows preview, Prime simulator,
    or physical Passport Prime. Do not treat one level as proof of another.
 
+Changes to the PolicyPackage protocol engine must also pass
+`scripts/verify-luke-roundtrip.sh` in its Docker-capable CI job. That job owns
+the claim that Luke's unchanged CLI accepts the adapter's output on Bitcoin
+Core regtest; fixture tests alone do not.
+
 ## Provenance
 
 Changes to `vendor/anzen-cold-signer` must preserve its upstream license and

@@ -32,6 +32,26 @@ retained as evidence.
 The earlier [Windows preview](screenshots/windows-preview.png) remains available
 as a separately labelled host-rendering reference.
 
+## PolicyPackage v4 host interoperability
+
+The repository also contains a host-side implementation of Luke's current
+version-4 policy ceremony. It imports the exact JSON and PSBT package produced
+by Anzen, presents the high-level policy, independently validates the static
+descriptor and recovery paths, every amount and fixed fee, all allowance and
+emergency transaction relationships, and every phone signature, then derives
+the Anzen HWW identity from KeyOS-style app-isolated seed material and adds the
+HWW signatures.
+
+The checked-in fixture is a deterministic, disposable regtest proposal created
+by Luke's code at commit `01794bb14d34d01413e3b539c7e5496ecbce0c87`.
+The public **Luke CLI regtest round trip** CI job goes further: Luke's unchanged
+CLI creates and phone-signs a freshly funded policy, this repository's adapter
+approves it, and Luke's unchanged CLI validates, activates, and broadcasts the
+rollover on a disposable Bitcoin Core regtest chain.
+
+The dated [PolicyPackage v4 evidence record](docs/evidence/policy-package-v4-roundtrip-2026-08-14.md)
+keeps that host proof separate from the earlier Prime simulator benchmark.
+
 ## What the demo proves
 
 - Uses Anzen's actual allocation-free `anzen-cold-signer` benchmark, pinned to
@@ -47,14 +67,19 @@ as a separately labelled host-rendering reference.
 
 ## What it does not claim
 
-This is a compatibility proof, not a production Anzen wallet. It does not parse
-Anzen policy packages, communicate with the Anzen phone app, persist a vault,
-sign live wallet inputs, broadcast transactions, or move funds. Those are
-protocol and product-integration steps after the hardware capability is
-demonstrated.
+This is a compatibility proof, not a production Anzen wallet. Policy import and
+export are a development file bridge, not Anzen phone connectivity. The real
+policy-package proof runs on the host against disposable regtest funds; it is
+not evidence that this larger policy engine builds or runs on Passport Prime.
+Production transport, persistence hardening, mobile integration, mainnet
+safety, physical-device execution, and real-funds use remain unimplemented and
+unproved.
 
 ## Repository layout
 
+- `crates/anzen-policy-engine` - host-testable PolicyPackage v4 validation and signing.
+- `tools/anzen-prime-adapter` - development-only file adapter used for interoperability proof.
+- `fixtures/policy-package-v4` - deterministic regtest proposal and provenance.
 - `vendor/anzen-cold-signer` — verbatim MIT-licensed upstream snapshot.
 - `crates/anzen-prime-core` — host-testable Prime signing integration.
 - `app` — thin native KeyOS/Slint shell.
@@ -65,6 +90,15 @@ demonstrated.
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 ```
+
+With Docker available, run the pinned Luke CLI/Bitcoin Core round trip:
+
+```sh
+./scripts/verify-luke-roundtrip.sh
+```
+
+The script uses only disposable regtest state and deletes its isolated Docker
+project, named volume, and temporary files on exit.
 
 ## Run the Windows preview
 
