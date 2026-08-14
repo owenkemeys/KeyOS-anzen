@@ -44,4 +44,7 @@ fn invalid_identity_fails_without_creating_an_output_file() {
 
     assert!(!result.status.success());
     assert!(!output.exists());
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert!(stderr.contains("HWW key does not match vault descriptor"));
+    assert!(!stderr.contains("4343434343434343"));
 }
