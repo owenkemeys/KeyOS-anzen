@@ -8,7 +8,7 @@ not runtime evidence.
 
 - Repository: `owenkemeys/KeyOS-anzen`
 - Branch: `codex/prime-policy-v4-simulator`
-- Source commit: `2e753fdc8426980cc2007cc138dff921ddcb0e21`
+- Source commit: `4507a43ce0f2d0b04e61295b865136c2eee28b39`
 - Tracked issue: `#7`
 - Foundation SDK package: `0.4.0-x86_64-unknown-linux-gnu`
 - Target: `armv7a-unknown-xous-elf`
@@ -31,11 +31,11 @@ binary, generated `manifest.json`, and signed the app bundle.
 ## Signed output
 
 - `app.elf` SHA-256:
-  `872745740ddab432b8e8cf3f9c537616e2bd95d6e412bcee1441dda4beeb53f8`
+  `86b0aad0c542b8744ff64afb691171fc58e6b0a306d374c9caa6cb9c11e65a12`
 - `manifest.json` SHA-256:
   `e00480e86bf8bb05cd3fdaf577433cbff1519864f90d389cfaf1f460e9bb1c27`
 - Exact source archive SHA-256:
-  `59142224b5c01a65e2b6ccbd048c0a997cc5d910f3c131dc460cffba566ff889`
+  `29953eaf75d99ad12f601cf47a7095b7a9854971935b6be5bb157731b8764d1e`
 
 The first clean rebuild exhausted the 13 GiB then available while compiling and
 stopped before packaging. The failed partial project target was removed. Nix
@@ -43,6 +43,12 @@ then identified 281 unreachable store paths and garbage-collected 62.9 GiB of
 reproducible cache/toolchain material. The required toolchain was restored from
 the official Nix cache and the exact-source rebuild completed with 45 GiB free.
 The resulting isolated project target occupied 6.5 GiB.
+
+A later incremental build from source commit `4507a43` added monotonic timing
+around independent validation, HWW signing, and the complete approve-to-write
+operation. That exact source again compiled, stripped, manifested, and signed
+with 45 GiB free. This proves target compatibility of the timing code, not the
+speed of physical hardware.
 
 ## Host safety checks before target build
 

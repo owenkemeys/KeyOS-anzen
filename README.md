@@ -66,6 +66,9 @@ boundaries.
   `armv7a-unknown-xous-elf`.
 - The hosted simulator visibly completes the labelled real-fixture review and
   approval flow using a deterministic simulator-only seed and app-private output.
+- The success screen reports independent-validation, 28-signature, and total
+  approve-to-write timing. Preview and simulator values are labelled as
+  non-hardware; only a physical Prime run is presented as hardware timing.
 - A target build is not simulator or physical-device execution evidence.
 
 The file bridge is not Anzen phone connectivity. Production transport,
@@ -139,6 +142,10 @@ scripts/prime-sdk.sh sim
 The SDK is currently a public beta and Foundation's supported host path is Linux
 or macOS. This repository is developed from Windows through a bounded Ubuntu VM
 workflow.
+
+When hardware sideloading becomes available, use the compact
+[Prime hardware timing test card](docs/prime-hardware-timing-test.md) to collect
+one cold run and four warm runs for Luke without conflating simulator timing.
 
 ## Contributing
 
