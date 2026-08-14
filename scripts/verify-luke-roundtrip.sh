@@ -58,6 +58,8 @@ anzen phone set-policy \
     --emergency-access-limit 50000000 \
     --output /work/policy.json >/dev/null
 test -s "$work_root/policy.json"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c 'chmod 0644 /work/policy.json'
 
 "$repo_root/target/debug/anzen-prime-adapter" approve \
     "$work_root/policy.json" \
