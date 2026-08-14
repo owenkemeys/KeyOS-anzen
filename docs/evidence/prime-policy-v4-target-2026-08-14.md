@@ -8,6 +8,7 @@ not runtime evidence.
 
 - Repository: `owenkemeys/KeyOS-anzen`
 - Branch: `codex/prime-policy-v4-simulator`
+- Source commit: `2e753fdc8426980cc2007cc138dff921ddcb0e21`
 - Tracked issue: `#7`
 - Foundation SDK package: `0.4.0-x86_64-unknown-linux-gnu`
 - Target: `armv7a-unknown-xous-elf`
@@ -30,13 +31,18 @@ binary, generated `manifest.json`, and signed the app bundle.
 ## Signed output
 
 - `app.elf` SHA-256:
-  `2e6609fef02193fa0fe930452d0f01713e7eee360e4b4003ece21e91185b833d`
+  `872745740ddab432b8e8cf3f9c537616e2bd95d6e412bcee1441dda4beeb53f8`
 - `manifest.json` SHA-256:
   `e00480e86bf8bb05cd3fdaf577433cbff1519864f90d389cfaf1f460e9bb1c27`
+- Exact source archive SHA-256:
+  `59142224b5c01a65e2b6ccbd048c0a997cc5d910f3c131dc460cffba566ff889`
 
-The VM had 26 GiB free after the build. The existing isolated project target was
-reused rather than creating a second unbounded cache, and the VM was returned to
-saved state immediately after evidence capture.
+The first clean rebuild exhausted the 13 GiB then available while compiling and
+stopped before packaging. The failed partial project target was removed. Nix
+then identified 281 unreachable store paths and garbage-collected 62.9 GiB of
+reproducible cache/toolchain material. The required toolchain was restored from
+the official Nix cache and the exact-source rebuild completed with 45 GiB free.
+The resulting isolated project target occupied 6.5 GiB.
 
 ## Host safety checks before target build
 
@@ -50,6 +56,7 @@ saved state immediately after evidence capture.
 
 This proves the complete source is compatible with the Prime device target and
 can be packaged as a signed KeyOS app. It does not prove the app launches, reads
-the simulator USB folder, displays correctly, writes approved JSON at runtime,
-or executes on physical Passport Prime hardware. Those claims require separate
-simulator or hardware evidence.
+the device USB folder, or executes on physical Passport Prime hardware. The
+separate hosted-simulator record covers visible fixture import, review, approval,
+signing, and app-private output without extending that evidence to USB, phone
+transport, a hardware seed, or physical hardware.

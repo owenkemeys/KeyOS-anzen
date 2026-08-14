@@ -51,6 +51,10 @@ The dated
 documents that host round trip. The separate
 [Prime target record](docs/evidence/prime-policy-v4-target-2026-08-14.md)
 documents the signed device-target build without treating it as runtime proof.
+The
+[PolicyPackage v4 simulator record](docs/evidence/prime-policy-v4-simulator-2026-08-14.md)
+documents the owner-accepted hosted flow while preserving its fixture and test-seed
+boundaries.
 
 ## Current proof boundary
 
@@ -60,6 +64,8 @@ documents the signed device-target build without treating it as runtime proof.
 - Public CI proves Luke's unchanged CLI accepts the approved package on regtest.
 - Foundation SDK v0.4.0 builds, strips, manifests, and signs the complete app for
   `armv7a-unknown-xous-elf`.
+- The hosted simulator visibly completes the labelled real-fixture review and
+  approval flow using a deterministic simulator-only seed and app-private output.
 - A target build is not simulator or physical-device execution evidence.
 
 The file bridge is not Anzen phone connectivity. Production transport,

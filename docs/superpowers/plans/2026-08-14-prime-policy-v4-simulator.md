@@ -30,6 +30,6 @@ real PolicyPackage v4 format.
 - [x] Replace the benchmark UI with import, review, approve, and success states.
 - [x] Add the KeyOS USB filesystem and app-seed adapters.
 - [x] Prove the complete app builds as a signed `armv7a-unknown-xous-elf` bundle.
-- [ ] Run and visually verify the hosted Prime simulator flow with the real fixture.
-- [ ] Have the owner complete the compact simulator playtest card.
+- [x] Run and visually verify the hosted Prime simulator flow with the real fixture.
+- [x] Have the owner complete the compact simulator playtest card.
 - [ ] Push the focused PR, wait for CI, and record final durable evidence.
