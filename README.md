@@ -12,6 +12,10 @@ HWW signatures and writes Luke-compatible approved JSON.
 The current upstream protocol is pinned to commit
 `01794bb14d34d01413e3b539c7e5496ecbce0c87`.
 
+The [current Luke HWW parity matrix](docs/hww-parity.md) records every
+hardware-wallet-facing upstream operation, its strongest evidence, and the
+bounded slices that remain.
+
 ## Development Prime flow
 
 The physical-target app deliberately uses a file bridge until Anzen defines a
