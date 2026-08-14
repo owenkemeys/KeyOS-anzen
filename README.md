@@ -33,8 +33,10 @@ and approved JSON are never logged.
 Foundation's hosted simulator does not mount a USB volume. Its explicitly
 labelled simulator build therefore imports the same real Luke-generated regtest
 fixture embedded at compile time and atomically stores the approved JSON in
-app-private simulator storage. The device-target build continues to use the
-bounded USB flow above.
+app-private simulator storage. Because the hosted security service has no
+logged-in hardware seed session, that build also uses the fixture's deterministic
+test seed and labels it on screen. The device-target build continues to use the
+bounded USB flow and KeyOS-isolated app seed above.
 
 ## PolicyPackage v4 interoperability
 

@@ -24,8 +24,14 @@ struct KeyOsSeedSource;
 impl AppSeedSource for KeyOsSeedSource {
     type Error = ();
 
+    #[cfg(keyos)]
     fn app_seed(&mut self) -> Result<[u8; 32], ()> {
         Security::default().app_seed().map_err(|_| ())
+    }
+
+    #[cfg(not(keyos))]
+    fn app_seed(&mut self) -> Result<[u8; 32], ()> {
+        Ok([0x42; 32])
     }
 }
 
@@ -67,7 +73,9 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
 
     #[cfg(not(keyos))]
     {
-        ui.set_environment(SharedString::from("PRIME SIMULATOR · REGTEST FIXTURE"));
+        ui.set_environment(SharedString::from(
+            "PRIME SIMULATOR · REGTEST FIXTURE + TEST SEED",
+        ));
         ui.set_status_detail(SharedString::from(import_prompt()));
     }
 

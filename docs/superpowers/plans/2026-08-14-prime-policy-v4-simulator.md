@@ -13,6 +13,9 @@ real PolicyPackage v4 format.
 - Treat USB files as development transport, never phone connectivity.
 - Label the hosted simulator's embedded real fixture and app-private output;
   Foundation's hosted environment does not mount a USB volume.
+- Label the simulator's deterministic fixture seed; its hosted security server
+  has no logged-in hardware seed session, while the device target must continue
+  to call KeyOS `GetAppSeed`.
 - Do not request app-seed material during import or review.
 - Sign only after an explicit owner approval and full independent validation.
 - Bound imports to 128 KiB, avoid secret/PSBT logging, and use temporary-write

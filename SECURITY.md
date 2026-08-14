@@ -36,3 +36,8 @@ and regtest CI are deterministic disposable test vectors. They must never be
 reused for mainnet funds. The host adapter's seed argument and the Prime USB
 file bridge exist only to reproduce development proofs; neither is a production
 transport or authorization design.
+
+The hosted simulator has no logged-in hardware seed session. Its build uses the
+fixture's deterministic test seed and labels that fact on screen. The
+`armv7a-unknown-xous-elf` device build excludes this fallback and obtains only
+the KeyOS-isolated app seed.
