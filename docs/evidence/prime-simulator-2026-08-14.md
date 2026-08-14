@@ -54,6 +54,20 @@ Screenshot button:
 - SHA-256:
   `a3d4ce6e3472e156308f1b972b87996bb5fa204ddfb9c76d6a8538ddfe8aa4dd`
 
+## Device-framed capture
+
+The repository's primary publishing image is the owner's device-framed capture
+of the same completed live simulator run:
+
+- [`screenshots/prime-simulator-device-frame.png`](../../screenshots/prime-simulator-device-frame.png)
+- Dimensions: `573 x 1,071` pixels
+- Size: `192,162` bytes
+- SHA-256:
+  `41db51bf702985a247a42264df27e969ad1ad3fd41d7461e2ef658ade3343bda`
+
+The raw 480 x 800 simulator screenshot above remains the primary evidence
+surface; the device-framed capture is the clearer image for public sharing.
+
 ## Repository verification
 
 `scripts/verify.ps1` completed after the evidence files were added. It checked
@@ -65,6 +79,10 @@ errors.
 
 This proves that the KeyOS app builds for the Prime device target and that its
 hosted simulator build visibly runs Luke Childs' current Anzen benchmark through
-the Prime-shaped approval flow. It does not prove installation or execution on
+the Prime-shaped approval flow. The benchmark uses fake outpoints and amounts,
+but constructs the same version-2 Bitcoin transactions and BIP341 script-path
+signature messages as a real annual policy; all 39 resulting BIP340 signatures
+were cryptographically verified. It does not prove installation or execution on
 physical Passport Prime hardware, nor does it implement Anzen's phone protocol,
-policy-package transport, persistence, or funds movement.
+policy-package transport, persistence, live-input signing, broadcasting, or
+funds movement.
