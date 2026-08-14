@@ -18,6 +18,16 @@ pub enum PolicyError {
     UnsafePsbtPath,
     #[error("policy package PSBT set does not match its manifest")]
     PsbtSetMismatch,
+    #[error("policy package contains an invalid PSBT")]
+    InvalidPsbt,
+    #[error("policy package violates the approved policy: {0}")]
+    InvalidPolicy(&'static str),
+    #[error("unable to derive the Anzen HWW identity")]
+    KeyDerivation,
+    #[error("unable to sign the validated policy package")]
+    Signing,
+    #[error("unable to serialize the approved policy package")]
+    Serialization,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
