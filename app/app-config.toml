@@ -1,4 +1,3 @@
-# Replace this identity with one created by `foundation cert create`.
 app-name = "anzen-prime-proof"
 friendly-app-name = "Anzen Prime Proof"
 launcher-app-name = "Anzen Proof"
@@ -7,12 +6,12 @@ icon = "resources/icon.svg"
 app-id = "0xa29e6e5072696d6550726f6f663031"
 version = "0.1.0"
 min-keyos-version = "1.0.0"
-signing-identity = "Anzen Prime Proof Developer"
+signing-identity = "KeyOS Anzen Developer"
 
 [publisher]
-name = "Anzen Prime Proof contributors"
-contact-email = "hello@example.com"
-support-url = "https://github.com/lukechilds/anzen"
+name = "KeyOS Anzen contributors"
+contact-email = "keyos-anzen@users.noreply.github.com"
+support-url = "https://github.com/owenkemeys/KeyOS-anzen/issues"
 
 [permissions]
 template = ["gui-app"]
