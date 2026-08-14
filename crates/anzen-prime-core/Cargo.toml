@@ -6,5 +6,5 @@ license = "MIT"
 
 [dependencies]
 anzen-cold-signer = { path = "../../vendor/anzen-cold-signer" }
-k256 = { version = "0.13.4", features = ["schnorr"] }
+k256 = { version = "0.13.4", default-features = false, features = ["schnorr"] }
 sha2 = "0.10"
