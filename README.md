@@ -14,8 +14,8 @@ The current upstream protocol is pinned to commit
 
 ## Development Prime flow
 
-The Prime app deliberately uses a file bridge until Anzen defines a real phone
-transport for this device:
+The physical-target app deliberately uses a file bridge until Anzen defines a
+real phone transport for this device:
 
 1. Place `anzen-policy-v4.json` in the development USB folder.
 2. Press **Import development package**. Import is bounded to 128 KiB and does
@@ -29,6 +29,12 @@ transport for this device:
 An invalid package, identity mismatch, write failure, or commit failure does not
 replace an existing approved package. Seed material, private keys, PSBT bodies,
 and approved JSON are never logged.
+
+Foundation's hosted simulator does not mount a USB volume. Its explicitly
+labelled simulator build therefore imports the same real Luke-generated regtest
+fixture embedded at compile time and atomically stores the approved JSON in
+app-private simulator storage. The device-target build continues to use the
+bounded USB flow above.
 
 ## PolicyPackage v4 interoperability
 

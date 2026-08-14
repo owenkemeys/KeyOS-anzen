@@ -11,6 +11,8 @@ real PolicyPackage v4 format.
 
 - Keep Luke's protocol pinned to `01794bb14d34d01413e3b539c7e5496ecbce0c87`.
 - Treat USB files as development transport, never phone connectivity.
+- Label the hosted simulator's embedded real fixture and app-private output;
+  Foundation's hosted environment does not mount a USB volume.
 - Do not request app-seed material during import or review.
 - Sign only after an explicit owner approval and full independent validation.
 - Bound imports to 128 KiB, avoid secret/PSBT logging, and use temporary-write

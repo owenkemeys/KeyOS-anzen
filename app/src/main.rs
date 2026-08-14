@@ -4,13 +4,17 @@ use anzen_prime_core::{
 use slint_keyos_platform::{app_ui, slint::SharedString};
 use std::{
     cell::RefCell,
-    io::{Read, Write},
+    io::Write,
     rc::Rc,
 };
+
+#[cfg(keyos)]
+use std::io::Read;
 
 security::use_api!();
 app_ui!("Anzen Policy Approval");
 
+#[cfg(keyos)]
 const IMPORT_FILE: &str = "anzen-policy-v4.json";
 const APPROVED_FILE: &str = "anzen-policy-v4-approved.json";
 const TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
@@ -25,11 +29,11 @@ impl AppSeedSource for KeyOsSeedSource {
     }
 }
 
-struct UsbApprovedSink {
+struct DevelopmentApprovedSink {
     fs: FileSystem,
 }
 
-impl Default for UsbApprovedSink {
+impl Default for DevelopmentApprovedSink {
     fn default() -> Self {
         Self {
             fs: FileSystem::default(),
@@ -37,13 +41,13 @@ impl Default for UsbApprovedSink {
     }
 }
 
-impl ApprovedPackageSink for UsbApprovedSink {
+impl ApprovedPackageSink for DevelopmentApprovedSink {
     type Error = ();
 
     fn write_temporary(&mut self, bytes: &[u8]) -> Result<(), ()> {
         let mut file = self
             .fs
-            .open_file(TEMPORARY_FILE, fs::Location::Usb, fs::OpenFlags::CREATE)
+            .open_file(TEMPORARY_FILE, export_location(), fs::OpenFlags::CREATE)
             .map_err(|_| ())?;
         file.truncate().map_err(|_| ())?;
         file.write_all(bytes).map_err(|_| ())?;
@@ -52,7 +56,7 @@ impl ApprovedPackageSink for UsbApprovedSink {
 
     fn commit_temporary(&mut self) -> Result<(), ()> {
         self.fs
-            .rename(TEMPORARY_FILE, APPROVED_FILE, fs::Location::Usb)
+            .rename(TEMPORARY_FILE, APPROVED_FILE, export_location())
             .map_err(|_| ())
     }
 }
@@ -60,6 +64,12 @@ impl ApprovedPackageSink for UsbApprovedSink {
 fn app_main(_cx: AppContext, ui: AppWindow) {
     log_server::init_wait(env!("CARGO_CRATE_NAME")).unwrap();
     log::set_max_level(log::LevelFilter::Info);
+
+    #[cfg(not(keyos))]
+    {
+        ui.set_environment(SharedString::from("PRIME SIMULATOR · REGTEST FIXTURE"));
+        ui.set_status_detail(SharedString::from(import_prompt()));
+    }
 
     let reviewed = Rc::new(RefCell::new(None::<ReviewedPolicyPackage>));
     let ui_weak = ui.as_weak();
@@ -85,7 +95,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     "Checking all 28 PSBTs and phone signatures before adding Prime approval.",
                 ));
                 let mut seed = KeyOsSeedSource;
-                let mut sink = UsbApprovedSink::default();
+                let mut sink = DevelopmentApprovedSink::default();
                 let result = reviewed_for_action
                     .borrow()
                     .as_ref()
@@ -105,7 +115,9 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                         ui.set_status_title(SharedString::from("Approved package written"));
                         ui.set_status_detail(SharedString::from(format!(
                             "{} PSBTs validated · {} HWW signatures added\n{}",
-                            receipt.psbt_count, receipt.hww_signature_count, APPROVED_FILE,
+                            receipt.psbt_count,
+                            receipt.hww_signature_count,
+                            approved_destination(),
                         )));
                         log::info!(
                             "Anzen package approved: {} PSBTs, {} HWW signatures",
@@ -126,6 +138,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
     ui.run().expect("UI running");
 }
 
+#[cfg(keyos)]
 fn read_import() -> Result<Vec<u8>, String> {
     let fs = FileSystem::default();
     let file = fs
@@ -136,6 +149,41 @@ fn read_import() -> Result<Vec<u8>, String> {
         .read_to_end(&mut bytes)
         .map_err(|_| "The policy file could not be read".to_string())?;
     Ok(bytes)
+}
+
+#[cfg(not(keyos))]
+fn read_import() -> Result<Vec<u8>, String> {
+    Ok(include_bytes!("../../fixtures/policy-package-v4/regtest-proposal.json").to_vec())
+}
+
+#[cfg(keyos)]
+fn export_location() -> fs::Location {
+    fs::Location::Usb
+}
+
+#[cfg(not(keyos))]
+fn export_location() -> fs::Location {
+    fs::Location::AppData
+}
+
+#[cfg(keyos)]
+fn import_prompt() -> &'static str {
+    "Reads anzen-policy-v4.json from the development USB folder. No signing key is used during import."
+}
+
+#[cfg(not(keyos))]
+fn import_prompt() -> &'static str {
+    "Loads Luke's real regtest PolicyPackage v4 fixture. No signing key is used during import."
+}
+
+#[cfg(keyos)]
+fn approved_destination() -> &'static str {
+    APPROVED_FILE
+}
+
+#[cfg(not(keyos))]
+fn approved_destination() -> &'static str {
+    "Approved JSON saved in simulator app storage"
 }
 
 fn show_review(ui: &AppWindow, package: &ReviewedPolicyPackage) {
@@ -182,7 +230,7 @@ fn reset_import(ui: &AppWindow) {
     ui.set_success(false);
     ui.set_status_title(SharedString::from("Ready to import"));
     ui.set_status_detail(SharedString::from(
-        "Reads anzen-policy-v4.json from the development USB folder. No signing key is used during import.",
+        import_prompt(),
     ));
 }
 
