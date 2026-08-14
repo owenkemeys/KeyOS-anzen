@@ -44,3 +44,23 @@ jobs:
 
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --release --locked -- -D warnings
+
+  luke-regtest-roundtrip:
+    name: Luke CLI regtest round trip
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build outputs
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: policy-roundtrip
+
+      - name: Approve and activate Luke PolicyPackage v4 on regtest
+        run: ./scripts/verify-luke-roundtrip.sh

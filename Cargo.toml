@@ -3,6 +3,7 @@ members = [
     "crates/anzen-policy-engine",
     "crates/anzen-prime-core",
     "preview",
+    "tools/anzen-prime-adapter",
     "vendor/anzen-cold-signer",
 ]
 resolver = "2"

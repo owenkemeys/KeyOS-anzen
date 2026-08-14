@@ -258,6 +258,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "anzen-prime-adapter"
+version = "0.1.0"
+dependencies = [
+ "anzen-policy-engine",
+ "bitcoin",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "anzen-prime-core"
 version = "0.1.0"
 dependencies = [

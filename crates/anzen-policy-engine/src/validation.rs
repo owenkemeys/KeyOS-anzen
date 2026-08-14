@@ -35,6 +35,10 @@ impl ValidatedPolicy {
     pub fn psbt_count(&self) -> usize {
         self.psbts.len()
     }
+
+    pub fn summary(&self) -> Result<crate::PolicySummary, PolicyError> {
+        self.package.summary()
+    }
 }
 
 impl PolicyPackage {
