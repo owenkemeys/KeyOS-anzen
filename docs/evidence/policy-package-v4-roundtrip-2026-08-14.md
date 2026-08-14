@@ -44,8 +44,9 @@ restoring the validator made them pass.
 
 ## Luke CLI/regtest acceptance
 
-Status: pending the public **Luke CLI regtest round trip** CI job on the pull
-request for issue [#5](https://github.com/owenkemeys/KeyOS-anzen/issues/5).
+Status: passed in the public **Luke CLI regtest round trip** job for
+[pull request #6](https://github.com/owenkemeys/KeyOS-anzen/pull/6),
+[Actions run 31830009457](https://github.com/owenkemeys/KeyOS-anzen/actions/runs/31830009457).
 
 That job pins Luke's commit, starts the upstream Bitcoin Core 28.1 regtest
 service, funds a fresh vault, invokes Luke's unchanged `phone set-policy`,
@@ -53,6 +54,14 @@ replaces only the simulated HWW approval step with `anzen-prime-adapter`, then
 invokes Luke's unchanged `phone activate-policy`. Success requires a rollover
 broadcast, a 10,000,000-sat active monthly limit, twelve encrypted allowance
 pairs, and 50,000,000-sat active emergency access.
+
+The successful disposable run recorded:
+
+- proposal SHA-256: `a1b985b9b2875924bc66b8b776150a254a35b073d1403fabee81d6124f0c3586`;
+- approved-package SHA-256: `917cf71971aa9cacdcd3c9a08a3d76af0d580f2922db264d9043bf102c5b3d0d`;
+- rollover transaction ID: `70796700c1af7f8d8c0c125482169cfea970983d6bc6655999b1e1687a3fa9c6`;
+- 200,000,000-sat input, 10,000,000-sat monthly limit, twelve allowance
+  pairs, 50,000,000-sat emergency access, and 28 HWW-signed PSBTs.
 
 ## Proof boundary
 
