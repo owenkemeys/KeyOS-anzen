@@ -10,10 +10,24 @@ The point is deliberately narrow: Anzen's current Ledger and Trezor work is a
 benchmark, and the same benchmark can run as a native KeyOS app on Passport
 Prime.
 
-![Anzen Prime Proof running in the Passport Prime simulator](screenshots/prime-simulator.png)
+![Anzen Prime Proof running in the Passport Prime simulator](screenshots/prime-simulator-device-frame.png)
 
-_Passport Prime simulator capture. The app completed Luke Childs' 28-transaction
-workload, produced 39 Schnorr signatures, and verified all 39._
+_Owner-captured Passport Prime simulator result. The app completed Luke Childs'
+28-transaction workload, produced 39 Schnorr signatures, and verified all 39._
+
+## What the green result means
+
+This is a completed cryptographic benchmark run, not a live vault. The benchmark
+uses deterministic fake outpoints and amounts, while constructing the same
+version-2 Bitcoin transactions and BIP341 script-path signature messages as
+Anzen's annual policy. The Prime app derived a demo key from the simulator's
+app-isolated seed, signed all 39 benchmark messages with BIP340 Schnorr, verified
+all 39 signatures, and committed the run to the displayed transcript hash.
+
+The on-screen phrase **Policy signed on Passport Prime** is compact demo wording.
+No real Anzen policy package, wallet UTXO, transaction, or funds were involved.
+The [raw 480 x 800 simulator capture](screenshots/prime-simulator.png) is also
+retained as evidence.
 
 The earlier [Windows preview](screenshots/windows-preview.png) remains available
 as a separately labelled host-rendering reference.
@@ -33,10 +47,11 @@ as a separately labelled host-rendering reference.
 
 ## What it does not claim
 
-This is a compatibility proof, not a production Anzen wallet. It does not yet
-parse Anzen policy packages, communicate with the Anzen phone app, persist a
-vault, or move funds. Those are protocol and product-integration steps after
-the hardware capability is demonstrated.
+This is a compatibility proof, not a production Anzen wallet. It does not parse
+Anzen policy packages, communicate with the Anzen phone app, persist a vault,
+sign live wallet inputs, broadcast transactions, or move funds. Those are
+protocol and product-integration steps after the hardware capability is
+demonstrated.
 
 ## Repository layout
 
