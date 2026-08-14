@@ -10,10 +10,13 @@ The point is deliberately narrow: Anzen's current Ledger and Trezor work is a
 benchmark, and the same benchmark can run as a native KeyOS app on Passport
 Prime.
 
-![Anzen Prime Proof Windows preview](screenshots/windows-preview.png)
+![Anzen Prime Proof running in the Passport Prime simulator](screenshots/prime-simulator.png)
 
-_Windows preview of the shared UI and signing core; this is not a Passport
-Prime simulator capture._
+_Passport Prime simulator capture. The app completed Luke Childs' 28-transaction
+workload, produced 39 Schnorr signatures, and verified all 39._
+
+The earlier [Windows preview](screenshots/windows-preview.png) remains available
+as a separately labelled host-rendering reference.
 
 ## What the demo proves
 
@@ -25,6 +28,8 @@ Prime simulator capture._
 - Verifies every signature and commits the run to a transcript hash.
 - Exposes only the public key and transcript; the app seed and private key stay
   inside the app process.
+- Builds as a signed KeyOS device bundle and runs as a hosted app in the
+  Passport Prime simulator.
 
 ## What it does not claim
 
@@ -56,9 +61,8 @@ seed API exists only on Passport Prime:
 cargo run -p anzen-prime-preview --release
 ```
 
-It is intentionally labeled **Windows preview** on screen. A screenshot of the
-preview proves the product flow and real 39-signature workload; only the later
-KeyOS simulator/device build proves the Prime platform integration.
+It is intentionally labeled **Windows preview** on screen. The genuine Prime
+simulator evidence is the primary screenshot at the top of this page.
 
 ## Build for Passport Prime
 
@@ -76,10 +80,10 @@ The Prime SDK is currently a public beta and Foundation's supported host path
 is Linux or macOS. This repository was developed from Windows using an Ubuntu
 VM for the SDK build and simulator.
 
-The genuine simulator milestone is tracked publicly in
+The genuine simulator milestone is recorded in
+[`docs/evidence/prime-simulator-2026-08-14.md`](docs/evidence/prime-simulator-2026-08-14.md)
+and tracked publicly in
 [#1 Prime simulator proof](https://github.com/owenkemeys/KeyOS-anzen/issues/1).
-Its evidence requirements are documented in
-[`docs/prime-simulator-proof.md`](docs/prime-simulator-proof.md).
 
 ## Contributing
 

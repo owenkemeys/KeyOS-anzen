@@ -7,27 +7,31 @@ Passport Prime simulator run from being conflated.
 
 ## Device-target build
 
-- [ ] Record the Foundation SDK version or commit.
-- [ ] Run `scripts/prime-sdk.sh doctor` successfully in the SDK environment.
-- [ ] Build from the public branch with `scripts/prime-sdk.sh build`.
-- [ ] Preserve the signed `app.elf` and `manifest.json` checksums outside Git.
-- [ ] Confirm no local signing identity or private path appears in committed files.
+- [x] Record the Foundation SDK version or commit.
+- [x] Run `scripts/prime-sdk.sh doctor` successfully in the SDK environment.
+- [x] Build from the public branch with `scripts/prime-sdk.sh build`.
+- [x] Preserve the signed `app.elf` and `manifest.json` checksums outside Git.
+- [x] Confirm no private signing material, credential, or owner-specific path
+      appears in committed files.
 
 ## Hosted simulator
 
-- [ ] Build through `scripts/prime-sdk.sh sim`; do not substitute the device
+- [x] Build through `scripts/prime-sdk.sh sim`; do not substitute the device
       `app.elf`.
-- [ ] Confirm the simulator control channel reports the app launched.
-- [ ] Confirm the Anzen screen is visibly rendered, not merely a live process.
-- [ ] Run the proof and show 28 transactions, 39 signatures, and 39 verified.
-- [ ] Capture the screen with the simulator's own Screenshot control.
-- [ ] Commit only the selected screenshot and its public evidence note.
+- [x] Confirm the simulator control channel reports the app launched.
+- [x] Confirm the Anzen screen is visibly rendered, not merely a live process.
+- [x] Run the proof and show 28 transactions, 39 signatures, and 39 verified.
+- [x] Capture the screen with the simulator's own Screenshot control.
+- [x] Commit only the selected screenshot and its public evidence note.
 
 ## Publication
 
-- [ ] Label the screenshot "Passport Prime simulator".
-- [ ] Keep the Windows preview separately and label it accurately.
-- [ ] State that hardware installation and physical-device execution remain
+- [x] Label the screenshot "Passport Prime simulator".
+- [x] Keep the Windows preview separately and label it accurately.
+- [x] State that hardware installation and physical-device execution remain
       unproven unless they have independently occurred.
-- [ ] Run the repository verification scripts.
-- [ ] Attach the evidence to a pull request linked to issue #1.
+- [x] Run the repository verification scripts.
+- [x] Attach the evidence to a pull request linked to issue #1.
+
+The dated evidence and checksums are in
+[`evidence/prime-simulator-2026-08-14.md`](evidence/prime-simulator-2026-08-14.md).
