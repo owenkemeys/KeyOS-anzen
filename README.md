@@ -75,6 +75,17 @@ The Prime SDK is currently a public beta and Foundation's supported host path
 is Linux or macOS. This repository was developed from Windows using an Ubuntu
 VM for the SDK build and simulator.
 
+The genuine simulator milestone is tracked publicly in
+[#1 Prime simulator proof](https://github.com/owenkemeys/KeyOS-anzen/issues/1).
+Its evidence requirements are documented in
+[`docs/prime-simulator-proof.md`](docs/prime-simulator-proof.md).
+
+## Contributing
+
+Material changes use an issue, a focused branch, automated checks, and a pull
+request. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and proof
+labelling rules.
+
 ## Attribution
 
 Anzen and `anzen-cold-signer` are by Luke Childs and licensed under MIT. The
