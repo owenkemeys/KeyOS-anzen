@@ -1,4 +1,6 @@
-use anzen_policy_engine::{AnzenIdentity, PolicyPackage, MAX_PACKAGE_BYTES};
+use anzen_policy_engine::{
+    AnzenIdentity, CooperativeSweepPackage, PolicyPackage, MAX_PACKAGE_BYTES,
+};
 use bitcoin::Network;
 use std::{
     env, fs,
@@ -9,14 +11,14 @@ use std::{
 
 fn main() {
     if let Err(error) = run() {
-        eprintln!("Policy approval failed: {error}; no approved package was written.");
+        eprintln!("Anzen approval failed: {error}; no approved package was written.");
         std::process::exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
     let args = env::args_os().skip(1).collect::<Vec<_>>();
-    if args.len() != 4 || args[0] != "approve" {
+    if args.len() != 4 {
         return Err("invalid command arguments".into());
     }
     let input = PathBuf::from(&args[1]);
@@ -28,9 +30,43 @@ fn run() -> Result<(), String> {
         .to_str()
         .ok_or_else(|| "development seed is not UTF-8".to_owned())?;
     let mut seed = decode_seed(seed_text)?;
-    let result = approve_file(&input, &output, &seed);
+    let result = match args[0].to_str() {
+        Some("approve") => approve_file(&input, &output, &seed),
+        Some("approve-sweep") => approve_sweep_file(&input, &output, &seed),
+        _ => Err("invalid command arguments".into()),
+    };
     seed.fill(0);
     result
+}
+
+fn approve_sweep_file(input: &Path, output: &Path, seed: &[u8; 32]) -> Result<(), String> {
+    let bytes = read_bounded(input)?;
+    let package =
+        CooperativeSweepPackage::parse_bounded(&bytes).map_err(|error| error.to_string())?;
+    let summary = package.summary().map_err(|error| error.to_string())?;
+    let network = match summary.network.as_str() {
+        "regtest" => Network::Regtest,
+        "bitcoin" => Network::Bitcoin,
+        _ => return Err("unsupported Bitcoin network".into()),
+    };
+    let identity =
+        AnzenIdentity::from_app_seed(seed, network).map_err(|error| error.to_string())?;
+    let approved = package
+        .validate(identity.public_key())
+        .and_then(|validated| validated.approve(&identity))
+        .map_err(|error| error.to_string())?;
+    let signatures = approved.hww_signature_count();
+    let json = approved.to_json().map_err(|error| error.to_string())?;
+    atomic_write_new(output, &json)?;
+
+    println!("Validated and approved Anzen cooperative sweep v1");
+    println!("Network: {}", summary.network);
+    println!("Destination: {}", summary.destination);
+    println!("Inputs: {}", summary.input_count);
+    println!("Sent: {} sats", summary.sent_sats);
+    println!("Fee: {} sats", summary.fee_sats);
+    println!("HWW signatures: {signatures}");
+    Ok(())
 }
 
 fn approve_file(input: &Path, output: &Path, seed: &[u8; 32]) -> Result<(), String> {

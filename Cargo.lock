@@ -275,6 +275,7 @@ dependencies = [
  "anzen-policy-engine",
  "bitcoin",
  "k256",
+ "serde_json",
  "sha2",
  "zeroize",
 ]

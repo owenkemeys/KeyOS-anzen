@@ -10,11 +10,13 @@ use k256::{
 use sha2::{Digest, Sha256 as Sha2};
 
 mod policy_flow;
+mod sweep_flow;
 
 pub use policy_flow::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, PolicyFlowError,
     ReviewedPolicyPackage,
 };
+pub use sweep_flow::ReviewedCooperativeSweep;
 
 const FIXED_PHONE_XONLY_PUBLIC_KEY: [u8; 32] = [
     0x79, 0xbe, 0x66, 0x7e, 0xf9, 0xdc, 0xbb, 0xac, 0x55, 0xa0, 0x62, 0x95, 0xce, 0x87, 0x0b, 0x07,

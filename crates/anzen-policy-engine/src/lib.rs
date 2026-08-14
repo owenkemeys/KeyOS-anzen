@@ -5,6 +5,7 @@ mod package;
 mod policy;
 mod signing;
 mod summary;
+mod sweep;
 mod validation;
 
 pub use keys::AnzenIdentity;
@@ -14,4 +15,8 @@ pub use package::{
 };
 pub use signing::ApprovedPolicyPackage;
 pub use summary::PolicySummary;
+pub use sweep::{
+    ApprovedCooperativeSweep, CooperativeSweepPackage, CooperativeSweepSummary,
+    ValidatedCooperativeSweep,
+};
 pub use validation::ValidatedPolicy;

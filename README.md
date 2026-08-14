@@ -30,6 +30,12 @@ real phone transport for this device:
    seed, derive the descriptor-bound HWW identity, revalidate the entire package,
    sign, and atomically commit `anzen-policy-v4-approved.json`.
 
+The same development shell can import `anzen-sweep-v1.json` through **Import
+cooperative sweep**. It reviews the exact destination, amount, fee, input count,
+and network; revalidates every vault input and phone signature after approval;
+then writes `anzen-sweep-v1-approved.json`. The phone remains responsible for
+proposal creation and broadcast.
+
 An invalid package, identity mismatch, write failure, or commit failure does not
 replace an existing approved package. Seed material, private keys, PSBT bodies,
 and approved JSON are never logged.
@@ -44,11 +50,11 @@ bounded USB flow and KeyOS-isolated app seed above.
 
 ## PolicyPackage v4 interoperability
 
-The checked-in fixture is a deterministic, disposable regtest proposal created
-by Luke's code. The public **Luke CLI regtest round trip** CI job also creates a
-fresh policy with Luke's unchanged CLI, passes it through this repository's
-approval engine, and has Luke's unchanged CLI validate, activate, and broadcast
-the rollover on disposable Bitcoin Core regtest state.
+The checked-in fixtures are deterministic, disposable regtest proposals created
+from Luke's code. The public **Luke CLI regtest round trip** CI job also creates
+a fresh policy and cooperative sweep with Luke's unchanged CLI, passes both
+through this repository's approval engine, and has Luke's unchanged CLI
+validate, activate, and broadcast them on disposable Bitcoin Core regtest state.
 
 The dated
 [PolicyPackage v4 evidence record](docs/evidence/policy-package-v4-roundtrip-2026-08-14.md)

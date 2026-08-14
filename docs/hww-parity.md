@@ -11,7 +11,7 @@ turn this repository into a production wallet.
 | --- | --- | --- | --- | --- |
 | `hww init` | KeyOS supplies an app-isolated seed; the app derives and checks the descriptor-bound HWW identity only after explicit approval. | Host identity tests, owner-accepted hosted simulator approval, and a signed Prime target build. | Represented for the current approval flow; physical execution is unproved. | None |
 | `hww confirm-policy` | Import and review PolicyPackage v4, independently validate all 28 PSBTs and phone signatures, add HWW signatures, and atomically export Luke-compatible JSON. | 35 host release tests; public Luke CLI/Bitcoin Core regtest round trip; owner-accepted hosted simulator flow; signed target build. | Represented. | None |
-| `hww confirm-sweep` | Review a phone-signed immediate cooperative sweep, validate its descriptor, inputs, destination, amount, fee, and phone signatures, then add the HWW signatures. | Not yet implemented. | Missing. | [Cooperative sweep review and signing](#cooperative-sweep-review-and-signing) |
+| `hww confirm-sweep` | Review a phone-signed immediate cooperative sweep, validate its descriptor, inputs, destination, amount, fee, and phone signatures, then add the HWW signatures. | Host engine/Prime-flow tests and public Luke CLI/Bitcoin Core regtest proposal-to-broadcast round trip. | Represented on host/regtest; simulator, target build, and physical execution are unproved. | None |
 | `hww confirm-rotation` | Review one phone-key rotation, its old-to-new vault sweep, preserved recovery-friend set, and optional renewed policy; approve the bound package in one ceremony. | Not yet implemented. | Missing. | [Phone-key rotation and renewed policy](#phone-key-rotation-and-renewed-policy) |
 | `hww recover` | Review a destination and mature HWW-only recovery sweep using the 65,535-block path; sign only eligible vault UTXOs. | Not yet implemented. | Missing. | [Delayed HWW recovery sweep](#delayed-hww-recovery-sweep) |
 | `hww decrypt-phone-backup` | Authenticate and decrypt Luke's HWW-wrapped cloud envelope, validate the phone key and descriptor binding, and export the portable recovery package. | Not yet implemented. | Missing. | [Descriptor-bound phone-backup decryption](#descriptor-bound-phone-backup-decryption) |
@@ -35,7 +35,7 @@ turn this repository into a production wallet.
 
 ### Cooperative sweep review and signing
 
-Implement only Luke's current `confirm-sweep` package and validation boundary.
+Implemented for Luke's current `confirm-sweep` package and validation boundary.
 The phone remains responsible for proposal creation and final broadcast.
 
 ### Phone-key rotation and renewed policy
@@ -68,4 +68,3 @@ The parity program stops at these current upstream commands. It excludes an
 invented phone protocol, Bluetooth or QR design, production persistence,
 mainnet enablement, app-catalog release, generalized wallet productization, and
 claims based on a signed build or simulator that require a physical Prime run.
-
