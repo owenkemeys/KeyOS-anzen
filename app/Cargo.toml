@@ -7,7 +7,9 @@ license = "MIT"
 [workspace]
 
 [dependencies]
+anzen-policy-engine = { path = "../crates/anzen-policy-engine" }
 anzen-prime-core = { path = "../crates/anzen-prime-core" }
+fs = { path = "/home/foundation/.foundation/sdk/current/lib/keyos/api/fs" }
 log = "0.4"
 log-server = { package = "xous-api-log", path = "/home/foundation/.foundation/sdk/current/lib/keyos/xous/api/log" }
 security = { path = "/home/foundation/.foundation/sdk/current/lib/keyos/api/security" }

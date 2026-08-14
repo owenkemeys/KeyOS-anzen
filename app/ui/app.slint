@@ -1,11 +1,18 @@
 export component AppWindow inherits Window {
-    in-out property <string> status-title: "Ready to prove it";
-    in-out property <string> status-detail: "One approval runs Luke Childs' largest current Anzen hardware-wallet workload.";
-    in-out property <string> environment: "PASSPORT PRIME · KEYOS";
+    in-out property <int> stage: 0;
     in-out property <bool> success: false;
-    callback run-requested();
+    in-out property <string> status-title: "Ready to import";
+    in-out property <string> status-detail: "Reads anzen-policy-v4.json from the development USB folder. No signing key is used during import.";
+    in-out property <string> environment: "PASSPORT PRIME · KEYOS";
+    in-out property <string> vault-amount: "—";
+    in-out property <string> monthly-access: "—";
+    in-out property <string> emergency-access: "—";
+    in-out property <string> network-label: "—";
+    in-out property <string> fee-label: "—";
+    in-out property <string> transaction-label: "—";
+    callback primary-requested();
 
-    title: "Anzen Prime Proof";
+    title: "Anzen Policy Approval";
     preferred-width: 480px;
     preferred-height: 800px;
     background: #111416;
@@ -15,9 +22,9 @@ export component AppWindow inherits Window {
         height: parent.height;
         padding-left: 24px;
         padding-right: 24px;
-        padding-top: 46px;
-        padding-bottom: 26px;
-        spacing: 16px;
+        padding-top: 36px;
+        padding-bottom: 24px;
+        spacing: 14px;
 
         Text {
             text: "ANZEN  ×  PRIME";
@@ -38,7 +45,7 @@ export component AppWindow inherits Window {
         }
 
         Text {
-            text: "Annual vault policy";
+            text: root.stage == 0 ? "Import policy" : root.stage == 1 ? "Review annual policy" : "Policy approved";
             color: #ffffff;
             font-family: "Montserrat";
             font-size: 28px;
@@ -47,31 +54,40 @@ export component AppWindow inherits Window {
         }
 
         Rectangle {
+            visible: root.stage >= 1;
             width: 100%;
-            height: 238px;
+            height: 304px;
             border-radius: 20px;
             background: #1d2226;
             border-width: 1px;
             border-color: #343b40;
 
             VerticalLayout {
-                padding: 20px;
-                spacing: 12px;
-
-                Text { text: "VAULT"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
-                Text { text: "2.1 BTC protected"; color: #ffffff; font-family: "Montserrat"; font-size: 23px; font-weight: 750; }
+                padding: 18px;
+                spacing: 8px;
+                Text { text: "VAULT"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.vault-amount; color: #ffffff; font-family: "Montserrat"; font-size: 23px; font-weight: 750; }
                 Rectangle { height: 1px; background: #343b40; }
-                Text { text: "MONTHLY ACCESS"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
-                Text { text: "0.1 BTC  ×  12 months"; color: #ffffff; font-family: "Montserrat"; font-size: 20px; font-weight: 650; }
+                Text { text: "MONTHLY ACCESS"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.monthly-access; color: #ffffff; font-family: "Montserrat"; font-size: 18px; font-weight: 650; }
                 Rectangle { height: 1px; background: #343b40; }
-                Text { text: "EMERGENCY"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
-                Text { text: "0.5 BTC after 7 days"; color: #ffffff; font-family: "Montserrat"; font-size: 20px; font-weight: 650; }
+                Text { text: "EMERGENCY"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.emergency-access; color: #ffffff; font-family: "Montserrat"; font-size: 18px; font-weight: 650; }
+                Rectangle { height: 1px; background: #343b40; }
+                Text {
+                    text: root.network-label + "  ·  " + root.fee-label + "  ·  " + root.transaction-label;
+                    color: #aeb6bb;
+                    font-family: "Montserrat";
+                    font-size: 13px;
+                    font-weight: 550;
+                    horizontal-alignment: center;
+                }
             }
         }
 
         Rectangle {
             width: 100%;
-            height: 142px;
+            height: root.stage == 0 ? 190px : 132px;
             border-radius: 20px;
             background: root.success ? #17382c : #171b1e;
             border-width: 1px;
@@ -112,19 +128,19 @@ export component AppWindow inherits Window {
             Text {
                 width: parent.width;
                 height: parent.height;
-                text: root.success ? "Run proof again" : "Approve 28 transactions";
+                text: root.stage == 0 ? "Import development package" : root.stage == 1 ? "Approve and export" : "Import another package";
                 color: #111416;
                 font-family: "Montserrat";
-                font-size: 19px;
+                font-size: 18px;
                 font-weight: 800;
                 horizontal-alignment: center;
                 vertical-alignment: center;
             }
-            touch := TouchArea { clicked => { root.run-requested(); } }
+            touch := TouchArea { clicked => { root.primary-requested(); } }
         }
 
         Text {
-            text: "Runs lukechilds/anzen cold-signer @ 01794bb";
+            text: "Development file bridge · Anzen 01794bb";
             color: #727b81;
             font-family: "Montserrat";
             font-size: 12px;

@@ -35,4 +35,11 @@ if [[ "$action" == "doctor" ]]; then
   exec nix develop --command foundation doctor
 fi
 
+if [[ "$action" == "build" ]]; then
+  exec nix develop --command env \
+    CC_armv7a_unknown_xous_elf=arm-none-eabi-gcc \
+    AR_armv7a_unknown_xous_elf=arm-none-eabi-ar \
+    bash -c 'cd "$1" && foundation "$2"' bash "$app_dir" "$action"
+fi
+
 exec nix develop --command bash -c 'cd "$1" && foundation "$2"' bash "$app_dir" "$action"

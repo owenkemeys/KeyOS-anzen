@@ -272,8 +272,11 @@ name = "anzen-prime-core"
 version = "0.1.0"
 dependencies = [
  "anzen-cold-signer",
+ "anzen-policy-engine",
+ "bitcoin",
  "k256",
  "sha2",
+ "zeroize",
 ]
 
 [[package]]
