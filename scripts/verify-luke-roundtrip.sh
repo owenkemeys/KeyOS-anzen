@@ -78,4 +78,3 @@ sha256sum "$work_root/policy.json" | cut -d' ' -f1
 printf 'Approved SHA-256: '
 sha256sum "$work_root/approved-policy.json" | cut -d' ' -f1
 printf 'Real regtest policy-package round trip passed.\n'
-
