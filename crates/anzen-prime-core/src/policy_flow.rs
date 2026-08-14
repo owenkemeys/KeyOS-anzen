@@ -15,6 +15,10 @@ pub trait ApprovedPackageSink {
     fn commit_temporary(&mut self) -> Result<(), Self::Error>;
 }
 
+pub trait ApprovalClock {
+    fn now_ms(&mut self) -> u64;
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum PolicyFlowError {
     Policy(PolicyError),
@@ -32,6 +36,26 @@ impl From<PolicyError> for PolicyFlowError {
 pub struct ApprovalReceipt {
     pub psbt_count: usize,
     pub hww_signature_count: usize,
+    pub validation_ms: u64,
+    pub signing_ms: u64,
+    pub total_approval_ms: u64,
+}
+
+impl ApprovalReceipt {
+    pub fn timing_summary(&self, context: &str) -> String {
+        format!(
+            "Validation {} ms · Signing {} ms\nTotal approval {} ms\n{}",
+            self.validation_ms, self.signing_ms, self.total_approval_ms, context
+        )
+    }
+}
+
+struct UntimedClock;
+
+impl ApprovalClock for UntimedClock {
+    fn now_ms(&mut self) -> u64 {
+        0
+    }
 }
 
 pub struct ReviewedPolicyPackage {
@@ -65,6 +89,16 @@ impl ReviewedPolicyPackage {
         seed_source: &mut impl AppSeedSource,
         sink: &mut impl ApprovedPackageSink,
     ) -> Result<ApprovalReceipt, PolicyFlowError> {
+        self.approve_and_export_timed(seed_source, sink, &mut UntimedClock)
+    }
+
+    pub fn approve_and_export_timed(
+        &self,
+        seed_source: &mut impl AppSeedSource,
+        sink: &mut impl ApprovedPackageSink,
+        clock: &mut impl ApprovalClock,
+    ) -> Result<ApprovalReceipt, PolicyFlowError> {
+        let total_start = clock.now_ms();
         let mut app_seed = seed_source
             .app_seed()
             .map_err(|_| PolicyFlowError::SeedUnavailable)?;
@@ -72,9 +106,13 @@ impl ReviewedPolicyPackage {
         app_seed.zeroize();
         let identity = identity_result?;
 
+        let validation_start = clock.now_ms();
         let validated = self.package.clone().validate(identity.public_key())?;
+        let validation_end = clock.now_ms();
         let psbt_count = validated.psbt_count();
+        let signing_start = clock.now_ms();
         let approved = validated.approve(&identity)?;
+        let signing_end = clock.now_ms();
         let hww_signature_count = approved.hww_signature_count();
         let json = approved.to_json()?;
 
@@ -82,10 +120,14 @@ impl ReviewedPolicyPackage {
             .map_err(|_| PolicyFlowError::ExportFailed)?;
         sink.commit_temporary()
             .map_err(|_| PolicyFlowError::ExportFailed)?;
+        let total_end = clock.now_ms();
 
         Ok(ApprovalReceipt {
             psbt_count,
             hww_signature_count,
+            validation_ms: validation_end.saturating_sub(validation_start),
+            signing_ms: signing_end.saturating_sub(signing_start),
+            total_approval_ms: total_end.saturating_sub(total_start),
         })
     }
 

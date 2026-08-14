@@ -1,11 +1,12 @@
 use anzen_prime_core::{
-    AppSeedSource, ApprovedPackageSink, ReviewedPolicyPackage,
+    AppSeedSource, ApprovalClock, ApprovedPackageSink, ReviewedPolicyPackage,
 };
 use slint_keyos_platform::{app_ui, slint::SharedString};
 use std::{
     cell::RefCell,
     io::Write,
     rc::Rc,
+    time::Instant,
 };
 
 #[cfg(keyos)]
@@ -20,6 +21,24 @@ const APPROVED_FILE: &str = "anzen-policy-v4-approved.json";
 const TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
 
 struct KeyOsSeedSource;
+
+struct SystemApprovalClock {
+    started: Instant,
+}
+
+impl SystemApprovalClock {
+    fn start() -> Self {
+        Self {
+            started: Instant::now(),
+        }
+    }
+}
+
+impl ApprovalClock for SystemApprovalClock {
+    fn now_ms(&mut self) -> u64 {
+        self.started.elapsed().as_millis().min(u64::MAX as u128) as u64
+    }
+}
 
 impl AppSeedSource for KeyOsSeedSource {
     type Error = ();
@@ -104,13 +123,14 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                 ));
                 let mut seed = KeyOsSeedSource;
                 let mut sink = DevelopmentApprovedSink::default();
+                let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
                     .borrow()
                     .as_ref()
                     .ok_or_else(|| "Import the policy again".to_string())
                     .and_then(|package| {
                         package
-                            .approve_and_export(&mut seed, &mut sink)
+                            .approve_and_export_timed(&mut seed, &mut sink, &mut clock)
                             .map_err(|_| {
                                 "Approval failed. The existing approved file was not replaced."
                                     .to_string()
@@ -122,15 +142,19 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                         ui.set_success(true);
                         ui.set_status_title(SharedString::from("Approved package written"));
                         ui.set_status_detail(SharedString::from(format!(
-                            "{} PSBTs validated · {} HWW signatures added\n{}",
+                            "{} PSBTs validated · {} HWW signatures added\n{}\n{}",
                             receipt.psbt_count,
                             receipt.hww_signature_count,
+                            receipt.timing_summary(timing_context()),
                             approved_destination(),
                         )));
                         log::info!(
-                            "Anzen package approved: {} PSBTs, {} HWW signatures",
+                            "Anzen package approved: {} PSBTs, {} HWW signatures, validation {} ms, signing {} ms, total approval {} ms",
                             receipt.psbt_count,
                             receipt.hww_signature_count,
+                            receipt.validation_ms,
+                            receipt.signing_ms,
+                            receipt.total_approval_ms,
                         );
                     }
                     Err(error) => show_error(&ui, error),
@@ -187,6 +211,16 @@ fn import_prompt() -> &'static str {
 #[cfg(keyos)]
 fn approved_destination() -> &'static str {
     APPROVED_FILE
+}
+
+#[cfg(keyos)]
+fn timing_context() -> &'static str {
+    "PHYSICAL PRIME TIMING"
+}
+
+#[cfg(not(keyos))]
+fn timing_context() -> &'static str {
+    "SIMULATOR TIMING · NOT HARDWARE"
 }
 
 #[cfg(not(keyos))]

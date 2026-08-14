@@ -1,11 +1,29 @@
-use anzen_prime_core::{AppSeedSource, ApprovedPackageSink, ReviewedPolicyPackage};
-use std::{cell::RefCell, rc::Rc};
+use anzen_prime_core::{AppSeedSource, ApprovalClock, ApprovedPackageSink, ReviewedPolicyPackage};
+use std::{cell::RefCell, rc::Rc, time::Instant};
 
 slint::include_modules!();
 
 const FIXTURE: &[u8] = include_bytes!("../../fixtures/policy-package-v4/regtest-proposal.json");
 
 struct PreviewSeed;
+
+struct SystemApprovalClock {
+    started: Instant,
+}
+
+impl SystemApprovalClock {
+    fn start() -> Self {
+        Self {
+            started: Instant::now(),
+        }
+    }
+}
+
+impl ApprovalClock for SystemApprovalClock {
+    fn now_ms(&mut self) -> u64 {
+        self.started.elapsed().as_millis().min(u64::MAX as u128) as u64
+    }
+}
 
 impl AppSeedSource for PreviewSeed {
     type Error = ();
@@ -57,13 +75,14 @@ fn main() -> Result<(), slint::PlatformError> {
             1 => {
                 let mut seed = PreviewSeed;
                 let mut sink = MemorySink::default();
+                let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
                     .borrow()
                     .as_ref()
                     .ok_or("Import the policy again")
                     .and_then(|package| {
                         package
-                            .approve_and_export(&mut seed, &mut sink)
+                            .approve_and_export_timed(&mut seed, &mut sink, &mut clock)
                             .map_err(|_| "The package could not be approved")
                     });
                 match result {
@@ -73,8 +92,10 @@ fn main() -> Result<(), slint::PlatformError> {
                         ui.set_status_title("Approved package written".into());
                         ui.set_status_detail(
                             format!(
-                                "{} PSBTs independently validated · {} HWW signatures added\nanzen-policy-v4-approved.json",
-                                receipt.psbt_count, receipt.hww_signature_count
+                                "{} PSBTs independently validated · {} HWW signatures added\n{}\nanzen-policy-v4-approved.json",
+                                receipt.psbt_count,
+                                receipt.hww_signature_count,
+                                receipt.timing_summary("WINDOWS PREVIEW TIMING · NOT HARDWARE"),
                             )
                             .into(),
                         );

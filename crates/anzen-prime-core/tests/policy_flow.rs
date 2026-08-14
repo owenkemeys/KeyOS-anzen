@@ -1,6 +1,6 @@
 use anzen_policy_engine::{PolicyError, PolicyPackage, MAX_PACKAGE_BYTES};
 use anzen_prime_core::{
-    AppSeedSource, ApprovedPackageSink, PolicyFlowError, ReviewedPolicyPackage,
+    AppSeedSource, ApprovalClock, ApprovedPackageSink, PolicyFlowError, ReviewedPolicyPackage,
 };
 
 const FIXTURE: &[u8] = include_bytes!("../../../fixtures/policy-package-v4/regtest-proposal.json");
@@ -63,6 +63,24 @@ impl ApprovedPackageSink for RecordingSink {
     }
 }
 
+struct ScriptedClock {
+    readings_ms: std::array::IntoIter<u64, 6>,
+}
+
+impl ScriptedClock {
+    fn new(readings_ms: [u64; 6]) -> Self {
+        Self {
+            readings_ms: readings_ms.into_iter(),
+        }
+    }
+}
+
+impl ApprovalClock for ScriptedClock {
+    fn now_ms(&mut self) -> u64 {
+        self.readings_ms.next().expect("clock reading")
+    }
+}
+
 #[test]
 fn imports_real_v4_bytes_for_review_without_requesting_seed_material() {
     let reviewed = ReviewedPolicyPackage::import(FIXTURE).expect("real package should import");
@@ -116,6 +134,47 @@ fn explicit_approval_requests_seed_once_and_commits_luke_compatible_json() {
     assert_eq!(receipt.hww_signature_count, 28);
     let reparsed = PolicyPackage::parse_bounded(&sink.committed).unwrap();
     assert!(reparsed.manifest.hww_approved);
+}
+
+#[test]
+fn timed_approval_reports_validation_signing_and_total_milliseconds() {
+    let reviewed = ReviewedPolicyPackage::import(FIXTURE).unwrap();
+    let mut seed_source = SeedSource {
+        seed: [0x42; 32],
+        ..Default::default()
+    };
+    let mut sink = RecordingSink::with_previous(b"older approved package");
+    let mut clock = ScriptedClock::new([100, 110, 140, 150, 210, 225]);
+
+    let receipt = reviewed
+        .approve_and_export_timed(&mut seed_source, &mut sink, &mut clock)
+        .expect("reviewed package should approve");
+
+    assert_eq!(receipt.validation_ms, 30);
+    assert_eq!(receipt.signing_ms, 60);
+    assert_eq!(receipt.total_approval_ms, 125);
+    assert_eq!(receipt.psbt_count, 28);
+    assert_eq!(receipt.hww_signature_count, 28);
+}
+
+#[test]
+fn timing_summary_labels_simulator_measurements_as_non_hardware() {
+    let reviewed = ReviewedPolicyPackage::import(FIXTURE).unwrap();
+    let mut seed_source = SeedSource {
+        seed: [0x42; 32],
+        ..Default::default()
+    };
+    let mut sink = RecordingSink::with_previous(b"older approved package");
+    let mut clock = ScriptedClock::new([100, 110, 140, 150, 210, 225]);
+
+    let receipt = reviewed
+        .approve_and_export_timed(&mut seed_source, &mut sink, &mut clock)
+        .unwrap();
+
+    assert_eq!(
+        receipt.timing_summary("SIMULATOR TIMING · NOT HARDWARE"),
+        "Validation 30 ms · Signing 60 ms\nTotal approval 125 ms\nSIMULATOR TIMING · NOT HARDWARE"
+    );
 }
 
 #[test]

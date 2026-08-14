@@ -12,7 +12,8 @@ use sha2::{Digest, Sha256 as Sha2};
 mod policy_flow;
 
 pub use policy_flow::{
-    AppSeedSource, ApprovalReceipt, ApprovedPackageSink, PolicyFlowError, ReviewedPolicyPackage,
+    AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, PolicyFlowError,
+    ReviewedPolicyPackage,
 };
 
 const FIXED_PHONE_XONLY_PUBLIC_KEY: [u8; 32] = [

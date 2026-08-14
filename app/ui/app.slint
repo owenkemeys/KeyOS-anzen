@@ -54,7 +54,7 @@ export component AppWindow inherits Window {
         }
 
         Rectangle {
-            visible: root.stage >= 1;
+            visible: root.stage == 1;
             width: 100%;
             height: 304px;
             border-radius: 20px;
@@ -87,7 +87,7 @@ export component AppWindow inherits Window {
 
         Rectangle {
             width: 100%;
-            height: root.stage == 0 ? 190px : 132px;
+            height: root.stage == 0 ? 190px : root.success ? 244px : 132px;
             border-radius: 20px;
             background: root.success ? #17382c : #171b1e;
             border-width: 1px;
