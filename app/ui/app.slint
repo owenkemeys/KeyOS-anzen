@@ -10,7 +10,12 @@ export component AppWindow inherits Window {
     in-out property <string> network-label: "—";
     in-out property <string> fee-label: "—";
     in-out property <string> transaction-label: "—";
+    in-out property <string> operation-title: "Import HWW request";
+    in-out property <string> primary-label: "VAULT";
+    in-out property <string> secondary-label: "MONTHLY ACCESS";
+    in-out property <string> tertiary-label: "EMERGENCY";
     callback primary-requested();
+    callback sweep-requested();
 
     title: "Anzen Policy Approval";
     preferred-width: 480px;
@@ -45,7 +50,7 @@ export component AppWindow inherits Window {
         }
 
         Text {
-            text: root.stage == 0 ? "Import policy" : root.stage == 1 ? "Review annual policy" : "Policy approved";
+            text: root.stage == 2 ? "Request approved" : root.operation-title;
             color: #ffffff;
             font-family: "Montserrat";
             font-size: 28px;
@@ -65,13 +70,13 @@ export component AppWindow inherits Window {
             VerticalLayout {
                 padding: 18px;
                 spacing: 8px;
-                Text { text: "VAULT"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.primary-label; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
                 Text { text: root.vault-amount; color: #ffffff; font-family: "Montserrat"; font-size: 23px; font-weight: 750; }
                 Rectangle { height: 1px; background: #343b40; }
-                Text { text: "MONTHLY ACCESS"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
-                Text { text: root.monthly-access; color: #ffffff; font-family: "Montserrat"; font-size: 18px; font-weight: 650; }
+                Text { text: root.secondary-label; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.monthly-access; color: #ffffff; font-family: "Montserrat"; font-size: 16px; font-weight: 650; wrap: word-wrap; }
                 Rectangle { height: 1px; background: #343b40; }
-                Text { text: "EMERGENCY"; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
+                Text { text: root.tertiary-label; color: #929ba1; font-family: "Montserrat"; font-size: 12px; font-weight: 700; }
                 Text { text: root.emergency-access; color: #ffffff; font-family: "Montserrat"; font-size: 18px; font-weight: 650; }
                 Rectangle { height: 1px; background: #343b40; }
                 Text {
@@ -120,6 +125,29 @@ export component AppWindow inherits Window {
         Rectangle { vertical-stretch: 1; background: transparent; }
 
         Rectangle {
+            visible: root.stage == 0;
+            width: 100%;
+            height: 56px;
+            border-radius: 26px;
+            background: sweep-touch.pressed ? #2c3439 : #1d2226;
+            border-width: 1px;
+            border-color: #59636a;
+
+            Text {
+                width: parent.width;
+                height: parent.height;
+                text: "Import cooperative sweep";
+                color: #ffffff;
+                font-family: "Montserrat";
+                font-size: 16px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            sweep-touch := TouchArea { clicked => { root.sweep-requested(); } }
+        }
+
+        Rectangle {
             width: 100%;
             height: 64px;
             border-radius: 28px;
@@ -128,7 +156,7 @@ export component AppWindow inherits Window {
             Text {
                 width: parent.width;
                 height: parent.height;
-                text: root.stage == 0 ? "Import development package" : root.stage == 1 ? "Approve and export" : "Import another package";
+                text: root.stage == 0 ? "Import annual policy" : root.stage == 1 ? "Approve and export" : "Import another request";
                 color: #111416;
                 font-family: "Montserrat";
                 font-size: 18px;

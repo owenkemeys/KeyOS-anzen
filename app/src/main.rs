@@ -1,13 +1,9 @@
 use anzen_prime_core::{
-    AppSeedSource, ApprovalClock, ApprovedPackageSink, ReviewedPolicyPackage,
+    AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, ReviewedCooperativeSweep,
+    ReviewedPolicyPackage,
 };
 use slint_keyos_platform::{app_ui, slint::SharedString};
-use std::{
-    cell::RefCell,
-    io::Write,
-    rc::Rc,
-    time::Instant,
-};
+use std::{cell::RefCell, io::Write, rc::Rc, time::Instant};
 
 #[cfg(keyos)]
 use std::io::Read;
@@ -16,9 +12,31 @@ security::use_api!();
 app_ui!("Anzen Policy Approval");
 
 #[cfg(keyos)]
-const IMPORT_FILE: &str = "anzen-policy-v4.json";
-const APPROVED_FILE: &str = "anzen-policy-v4-approved.json";
-const TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
+const POLICY_IMPORT_FILE: &str = "anzen-policy-v4.json";
+const POLICY_APPROVED_FILE: &str = "anzen-policy-v4-approved.json";
+const POLICY_TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
+const SWEEP_IMPORT_FILE: &str = "anzen-sweep-v1.json";
+const SWEEP_APPROVED_FILE: &str = "anzen-sweep-v1-approved.json";
+const SWEEP_TEMPORARY_FILE: &str = ".anzen-sweep-v1-approved.tmp";
+
+enum ReviewedRequest {
+    Policy(ReviewedPolicyPackage),
+    Sweep(ReviewedCooperativeSweep),
+}
+
+impl ReviewedRequest {
+    fn approve_and_export_timed(
+        &self,
+        seed: &mut impl AppSeedSource,
+        sink: &mut impl ApprovedPackageSink,
+        clock: &mut impl ApprovalClock,
+    ) -> Result<ApprovalReceipt, anzen_prime_core::PolicyFlowError> {
+        match self {
+            Self::Policy(package) => package.approve_and_export_timed(seed, sink, clock),
+            Self::Sweep(package) => package.approve_and_export_timed(seed, sink, clock),
+        }
+    }
+}
 
 struct KeyOsSeedSource;
 
@@ -56,12 +74,24 @@ impl AppSeedSource for KeyOsSeedSource {
 
 struct DevelopmentApprovedSink {
     fs: FileSystem,
+    temporary_file: &'static str,
+    approved_file: &'static str,
 }
 
-impl Default for DevelopmentApprovedSink {
-    fn default() -> Self {
+impl DevelopmentApprovedSink {
+    fn policy() -> Self {
         Self {
             fs: FileSystem::default(),
+            temporary_file: POLICY_TEMPORARY_FILE,
+            approved_file: POLICY_APPROVED_FILE,
+        }
+    }
+
+    fn sweep() -> Self {
+        Self {
+            fs: FileSystem::default(),
+            temporary_file: SWEEP_TEMPORARY_FILE,
+            approved_file: SWEEP_APPROVED_FILE,
         }
     }
 }
@@ -72,7 +102,11 @@ impl ApprovedPackageSink for DevelopmentApprovedSink {
     fn write_temporary(&mut self, bytes: &[u8]) -> Result<(), ()> {
         let mut file = self
             .fs
-            .open_file(TEMPORARY_FILE, export_location(), fs::OpenFlags::CREATE)
+            .open_file(
+                self.temporary_file,
+                export_location(),
+                fs::OpenFlags::CREATE,
+            )
             .map_err(|_| ())?;
         file.truncate().map_err(|_| ())?;
         file.write_all(bytes).map_err(|_| ())?;
@@ -81,7 +115,7 @@ impl ApprovedPackageSink for DevelopmentApprovedSink {
 
     fn commit_temporary(&mut self) -> Result<(), ()> {
         self.fs
-            .rename(TEMPORARY_FILE, APPROVED_FILE, export_location())
+            .rename(self.temporary_file, self.approved_file, export_location())
             .map_err(|_| ())
     }
 }
@@ -98,7 +132,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
         ui.set_status_detail(SharedString::from(import_prompt()));
     }
 
-    let reviewed = Rc::new(RefCell::new(None::<ReviewedPolicyPackage>));
+    let reviewed = Rc::new(RefCell::new(None::<ReviewedRequest>));
     let ui_weak = ui.as_weak();
     let reviewed_for_action = reviewed.clone();
     ui.on_primary_requested(move || {
@@ -106,23 +140,33 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
             return;
         };
         match ui.get_stage() {
-            0 => match read_import().and_then(|bytes| {
+            0 => match read_policy_import().and_then(|bytes| {
                 ReviewedPolicyPackage::import(&bytes)
                     .map_err(|_| "The file is not a valid Anzen PolicyPackage v4".to_string())
             }) {
                 Ok(package) => {
                     show_review(&ui, &package);
-                    *reviewed_for_action.borrow_mut() = Some(package);
+                    *reviewed_for_action.borrow_mut() = Some(ReviewedRequest::Policy(package));
                 }
                 Err(error) => show_error(&ui, error),
             },
             1 => {
+                let is_sweep = matches!(
+                    reviewed_for_action.borrow().as_ref(),
+                    Some(ReviewedRequest::Sweep(_))
+                );
                 ui.set_status_title(SharedString::from("Validating and signing..."));
-                ui.set_status_detail(SharedString::from(
-                    "Checking all 28 PSBTs and phone signatures before adding Prime approval.",
-                ));
+                ui.set_status_detail(SharedString::from(if is_sweep {
+                    "Checking the destination, amount, fee, vault inputs, and phone signatures before adding Prime approval."
+                } else {
+                    "Checking all 28 PSBTs and phone signatures before adding Prime approval."
+                }));
                 let mut seed = KeyOsSeedSource;
-                let mut sink = DevelopmentApprovedSink::default();
+                let mut sink = if is_sweep {
+                    DevelopmentApprovedSink::sweep()
+                } else {
+                    DevelopmentApprovedSink::policy()
+                };
                 let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
                     .borrow()
@@ -140,13 +184,17 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     Ok(receipt) => {
                         ui.set_stage(2);
                         ui.set_success(true);
-                        ui.set_status_title(SharedString::from("Approved package written"));
+                        ui.set_status_title(SharedString::from(if is_sweep {
+                            "Approved sweep written"
+                        } else {
+                            "Approved package written"
+                        }));
                         ui.set_status_detail(SharedString::from(format!(
                             "{} PSBTs validated · {} HWW signatures added\n{}\n{}",
                             receipt.psbt_count,
                             receipt.hww_signature_count,
                             receipt.timing_summary(timing_context()),
-                            approved_destination(),
+                            approved_destination(is_sweep),
                         )));
                         log::info!(
                             "Anzen package approved: {} PSBTs, {} HWW signatures, validation {} ms, signing {} ms, total approval {} ms",
@@ -167,15 +215,39 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
         }
     });
 
+    let ui_weak = ui.as_weak();
+    let reviewed_for_sweep = reviewed.clone();
+    ui.on_sweep_requested(move || {
+        let Some(ui) = ui_weak.upgrade() else {
+            return;
+        };
+        match read_sweep_import().and_then(|bytes| {
+            ReviewedCooperativeSweep::import(&bytes)
+                .map_err(|_| "The file is not a valid Anzen cooperative sweep v1".to_string())
+        }) {
+            Ok(package) => {
+                show_sweep_review(&ui, &package);
+                *reviewed_for_sweep.borrow_mut() = Some(ReviewedRequest::Sweep(package));
+            }
+            Err(error) => show_error(&ui, error),
+        }
+    });
+
     ui.run().expect("UI running");
 }
 
 #[cfg(keyos)]
-fn read_import() -> Result<Vec<u8>, String> {
+fn read_policy_import() -> Result<Vec<u8>, String> {
     let fs = FileSystem::default();
     let file = fs
-        .open_file(IMPORT_FILE, fs::Location::Usb, fs::OpenFlags::READ_ONLY)
-        .map_err(|_| format!("Place {IMPORT_FILE} in the development USB folder and try again"))?;
+        .open_file(
+            POLICY_IMPORT_FILE,
+            fs::Location::Usb,
+            fs::OpenFlags::READ_ONLY,
+        )
+        .map_err(|_| {
+            format!("Place {POLICY_IMPORT_FILE} in the development USB folder and try again")
+        })?;
     let mut bytes = Vec::new();
     file.take((anzen_policy_engine::MAX_PACKAGE_BYTES + 1) as u64)
         .read_to_end(&mut bytes)
@@ -184,8 +256,32 @@ fn read_import() -> Result<Vec<u8>, String> {
 }
 
 #[cfg(not(keyos))]
-fn read_import() -> Result<Vec<u8>, String> {
+fn read_policy_import() -> Result<Vec<u8>, String> {
     Ok(include_bytes!("../../fixtures/policy-package-v4/regtest-proposal.json").to_vec())
+}
+
+#[cfg(keyos)]
+fn read_sweep_import() -> Result<Vec<u8>, String> {
+    let fs = FileSystem::default();
+    let file = fs
+        .open_file(
+            SWEEP_IMPORT_FILE,
+            fs::Location::Usb,
+            fs::OpenFlags::READ_ONLY,
+        )
+        .map_err(|_| {
+            format!("Place {SWEEP_IMPORT_FILE} in the development USB folder and try again")
+        })?;
+    let mut bytes = Vec::new();
+    file.take((anzen_policy_engine::MAX_PACKAGE_BYTES + 1) as u64)
+        .read_to_end(&mut bytes)
+        .map_err(|_| "The sweep file could not be read".to_string())?;
+    Ok(bytes)
+}
+
+#[cfg(not(keyos))]
+fn read_sweep_import() -> Result<Vec<u8>, String> {
+    Ok(include_bytes!("../../fixtures/cooperative-sweep-v1/regtest-proposal.json").to_vec())
 }
 
 #[cfg(keyos)]
@@ -209,8 +305,12 @@ fn import_prompt() -> &'static str {
 }
 
 #[cfg(keyos)]
-fn approved_destination() -> &'static str {
-    APPROVED_FILE
+fn approved_destination(is_sweep: bool) -> &'static str {
+    if is_sweep {
+        SWEEP_APPROVED_FILE
+    } else {
+        POLICY_APPROVED_FILE
+    }
 }
 
 #[cfg(keyos)]
@@ -224,7 +324,7 @@ fn timing_context() -> &'static str {
 }
 
 #[cfg(not(keyos))]
-fn approved_destination() -> &'static str {
+fn approved_destination(_is_sweep: bool) -> &'static str {
     "Approved JSON saved in simulator app storage"
 }
 
@@ -232,6 +332,10 @@ fn show_review(ui: &AppWindow, package: &ReviewedPolicyPackage) {
     let summary = package.summary();
     ui.set_stage(1);
     ui.set_success(false);
+    ui.set_operation_title(SharedString::from("Review annual policy"));
+    ui.set_primary_label(SharedString::from("VAULT"));
+    ui.set_secondary_label(SharedString::from("MONTHLY ACCESS"));
+    ui.set_tertiary_label(SharedString::from("EMERGENCY"));
     ui.set_vault_amount(SharedString::from(format!(
         "{} protected",
         btc(summary.total_input_sats)
@@ -261,6 +365,30 @@ fn show_review(ui: &AppWindow, package: &ReviewedPolicyPackage) {
     ));
 }
 
+fn show_sweep_review(ui: &AppWindow, package: &ReviewedCooperativeSweep) {
+    let summary = package.summary();
+    ui.set_stage(1);
+    ui.set_success(false);
+    ui.set_operation_title(SharedString::from("Review cooperative sweep"));
+    ui.set_primary_label(SharedString::from("SEND"));
+    ui.set_secondary_label(SharedString::from("DESTINATION"));
+    ui.set_tertiary_label(SharedString::from("VAULT INPUTS"));
+    ui.set_vault_amount(SharedString::from(btc(summary.sent_sats)));
+    ui.set_monthly_access(SharedString::from(summary.destination.clone()));
+    ui.set_emergency_access(SharedString::from(format!(
+        "{} input{}",
+        summary.input_count,
+        if summary.input_count == 1 { "" } else { "s" }
+    )));
+    ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
+    ui.set_fee_label(SharedString::from(format!("{} sats fee", summary.fee_sats)));
+    ui.set_transaction_label(SharedString::from("1 PSBT"));
+    ui.set_status_title(SharedString::from("Review before approving"));
+    ui.set_status_detail(SharedString::from(
+        "Approval will revalidate the destination, amount, fee, every vault input, and every phone signature before the Prime signing key is requested.",
+    ));
+}
+
 fn show_error(ui: &AppWindow, error: String) {
     ui.set_success(false);
     ui.set_status_title(SharedString::from("Action could not complete"));
@@ -271,9 +399,8 @@ fn reset_import(ui: &AppWindow) {
     ui.set_stage(0);
     ui.set_success(false);
     ui.set_status_title(SharedString::from("Ready to import"));
-    ui.set_status_detail(SharedString::from(
-        import_prompt(),
-    ));
+    ui.set_operation_title(SharedString::from("Import HWW request"));
+    ui.set_status_detail(SharedString::from(import_prompt()));
 }
 
 fn btc(sats: u64) -> String {

@@ -394,7 +394,7 @@ fn validate_child_common(
     Ok(())
 }
 
-fn verify_phone_signature(
+pub(crate) fn verify_phone_signature(
     psbt: &Psbt,
     leaf: &crate::policy::VaultLeaf,
     phone: XOnlyPublicKey,

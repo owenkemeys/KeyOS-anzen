@@ -74,9 +74,31 @@ printf '%s\n' "$activation" | grep -q '^Active monthly limit: 10000000 sats$'
 printf '%s\n' "$activation" | grep -q '^Encrypted allowance transaction pairs: 12$'
 printf '%s\n' "$activation" | grep -q '^Active emergency access: 50000000 sats$'
 
+anzen node mine 1 "$mining_address" >/dev/null
+anzen phone create-sweep "$mining_address" --output /work/sweep.json >/dev/null
+test -s "$work_root/sweep.json"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c 'chmod 0644 /work/sweep.json'
+
+"$repo_root/target/debug/anzen-prime-adapter" approve-sweep \
+    "$work_root/sweep.json" \
+    "$work_root/approved-sweep.json" \
+    "$DEVELOPMENT_SEED"
+test -s "$work_root/approved-sweep.json"
+
+sweep=$(anzen phone broadcast-sweep /work/approved-sweep.json)
+printf '%s\n' "$sweep"
+printf '%s\n' "$sweep" | grep -q '^Cooperative vault sweep broadcast: '
+printf '%s\n' "$sweep" | grep -q '^Inputs: '
+printf '%s\n' "$sweep" | grep -q '^Fee: .* sats (1 sat/vB)$'
+
 printf 'Luke upstream: %s\n' "$UPSTREAM_COMMIT"
 printf 'Proposal SHA-256: '
 sha256sum "$work_root/policy.json" | cut -d' ' -f1
 printf 'Approved SHA-256: '
 sha256sum "$work_root/approved-policy.json" | cut -d' ' -f1
-printf 'Real regtest policy-package round trip passed.\n'
+printf 'Sweep proposal SHA-256: '
+sha256sum "$work_root/sweep.json" | cut -d' ' -f1
+printf 'Approved sweep SHA-256: '
+sha256sum "$work_root/approved-sweep.json" | cut -d' ' -f1
+printf 'Real regtest policy-package and cooperative-sweep round trips passed.\n'
