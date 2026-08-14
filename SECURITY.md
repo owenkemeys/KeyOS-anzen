@@ -14,3 +14,18 @@ device data in the report.
 This repository is currently a compatibility proof, not a production wallet.
 That distinction limits its intended use but does not reduce the importance of
 responsible disclosure.
+
+## Policy-package proof boundary
+
+The host policy engine caps imported packages at 128 KiB, requires the exact
+manifest-to-PSBT set, validates the descriptor-bound recovery policy and full
+transaction graph, verifies phone signatures before signing, and writes an
+approved development file only after validation succeeds. These controls are
+compatibility safeguards, not a production security audit.
+
+The checked-in seed, mnemonic, UTXO, PSBTs, and addresses used by the fixture
+and regtest CI are deterministic disposable test vectors. They must never be
+reused for mainnet funds. The development adapter's seed argument exists only
+to reproduce the host proof; production KeyOS integration must obtain the
+app-isolated seed from the platform and must not expose it through files,
+arguments, logs, or transport.
