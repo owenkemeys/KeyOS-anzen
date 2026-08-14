@@ -1,5 +1,6 @@
 use anzen_policy_engine::{
-    AnzenIdentity, CooperativeSweepPackage, PolicyPackage, MAX_PACKAGE_BYTES,
+    AnzenIdentity, CloudRecoveryBackup, CooperativeSweepPackage, DeviceFile, PhoneRotationPackage,
+    PolicyPackage, VaultConfig, MAX_PACKAGE_BYTES,
 };
 use bitcoin::Network;
 use std::{
@@ -18,6 +19,12 @@ fn main() {
 
 fn run() -> Result<(), String> {
     let args = env::args_os().skip(1).collect::<Vec<_>>();
+    if matches!(
+        args.first().and_then(|value| value.to_str()),
+        Some("approve-rotation")
+    ) {
+        return approve_rotation_command(&args);
+    }
     if args.len() != 4 {
         return Err("invalid command arguments".into());
     }
@@ -37,6 +44,81 @@ fn run() -> Result<(), String> {
     };
     seed.fill(0);
     result
+}
+
+fn approve_rotation_command(args: &[std::ffi::OsString]) -> Result<(), String> {
+    if args.len() != 7 {
+        return Err("invalid command arguments".into());
+    }
+    let proposal = PathBuf::from(&args[1]);
+    let config = PathBuf::from(&args[2]);
+    let pending = PathBuf::from(&args[3]);
+    let backup = PathBuf::from(&args[4]);
+    let output = PathBuf::from(&args[5]);
+    if output.exists() {
+        return Err("output file already exists".into());
+    }
+    let seed_text = args[6]
+        .to_str()
+        .ok_or_else(|| "development seed is not UTF-8".to_owned())?;
+    let mut seed = decode_seed(seed_text)?;
+    let result = approve_rotation_files(&proposal, &config, &pending, &backup, &output, &seed);
+    seed.fill(0);
+    result
+}
+
+fn approve_rotation_files(
+    proposal_path: &Path,
+    config_path: &Path,
+    pending_path: &Path,
+    backup_path: &Path,
+    output: &Path,
+    seed: &[u8; 32],
+) -> Result<(), String> {
+    let package = PhoneRotationPackage::parse_bounded(&read_bounded(proposal_path)?)
+        .map_err(|error| error.to_string())?;
+    let current = VaultConfig::parse_bounded(&read_bounded(config_path)?)
+        .map_err(|error| error.to_string())?;
+    let network = match current.network.as_str() {
+        "regtest" => Network::Regtest,
+        "bitcoin" | "mainnet" => Network::Bitcoin,
+        _ => return Err("unsupported Bitcoin network".into()),
+    };
+    let pending = DeviceFile::parse_bounded(&read_bounded(pending_path)?)
+        .map_err(|error| error.to_string())?;
+    let backup = CloudRecoveryBackup::parse_bounded(&read_bounded(backup_path)?)
+        .map_err(|error| error.to_string())?;
+    let reviewed = package
+        .review(current, pending, backup)
+        .map_err(|error| error.to_string())?;
+    let summary = reviewed.summary();
+    let identity =
+        AnzenIdentity::from_app_seed(seed, network).map_err(|error| error.to_string())?;
+    let approved = reviewed
+        .approve(&identity)
+        .map_err(|error| error.to_string())?;
+    let sweep_signatures = approved.sweep_signature_count();
+    let policy_signatures = approved.policy_signature_count();
+    let json = approved.to_json().map_err(|error| error.to_string())?;
+    atomic_write_new(output, &json)?;
+
+    println!("Validated and approved Anzen phone-key rotation v1");
+    println!("New vault address: {}", summary.new_vault_address);
+    println!("Inputs: {}", summary.input_count);
+    println!("Sent: {} sats", summary.sent_sats);
+    println!("Fee: {} sats", summary.fee_sats);
+    println!("Monthly limit: {} sats", summary.monthly_limit_sats);
+    println!(
+        "Emergency access: {} sats",
+        summary.emergency_access_limit_sats
+    );
+    println!(
+        "Recovery friends preserved: {}",
+        summary.recovery_friend_count
+    );
+    println!("Sweep HWW signatures: {sweep_signatures}");
+    println!("Policy HWW signatures: {policy_signatures}");
+    Ok(())
 }
 
 fn approve_sweep_file(input: &Path, output: &Path, seed: &[u8; 32]) -> Result<(), String> {

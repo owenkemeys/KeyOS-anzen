@@ -62,5 +62,5 @@ jobs:
         with:
           shared-key: policy-roundtrip
 
-      - name: Approve and activate Luke PolicyPackage v4 on regtest
+      - name: Exercise Luke policy, rotation, and sweep parity on regtest
         run: ./scripts/verify-luke-roundtrip.sh

@@ -80,6 +80,10 @@ impl ValidatedPolicy {
 }
 
 impl ApprovedPolicyPackage {
+    pub(crate) fn into_package(self) -> PolicyPackage {
+        self.package
+    }
+
     pub fn hww_approved(&self) -> bool {
         self.package.manifest.hww_approved
     }

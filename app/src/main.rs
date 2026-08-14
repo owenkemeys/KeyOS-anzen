@@ -1,6 +1,6 @@
 use anzen_prime_core::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, ReviewedCooperativeSweep,
-    ReviewedPolicyPackage,
+    ReviewedPhoneRotationRequest, ReviewedPolicyPackage,
 };
 use slint_keyos_platform::{app_ui, slint::SharedString};
 use std::{cell::RefCell, io::Write, rc::Rc, time::Instant};
@@ -18,10 +18,17 @@ const POLICY_TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
 const SWEEP_IMPORT_FILE: &str = "anzen-sweep-v1.json";
 const SWEEP_APPROVED_FILE: &str = "anzen-sweep-v1-approved.json";
 const SWEEP_TEMPORARY_FILE: &str = ".anzen-sweep-v1-approved.tmp";
+const ROTATION_IMPORT_FILE: &str = "anzen-rotation-v1.json";
+const ROTATION_CONFIG_FILE: &str = "anzen-current-config-v1.json";
+const ROTATION_PENDING_FILE: &str = "anzen-pending-phone-rotation-v1.json";
+const ROTATION_BACKUP_FILE: &str = "anzen-current-phone-backup-v1.json";
+const ROTATION_APPROVED_FILE: &str = "anzen-rotation-v1-approved.json";
+const ROTATION_TEMPORARY_FILE: &str = ".anzen-rotation-v1-approved.tmp";
 
 enum ReviewedRequest {
     Policy(ReviewedPolicyPackage),
     Sweep(ReviewedCooperativeSweep),
+    Rotation(ReviewedPhoneRotationRequest),
 }
 
 impl ReviewedRequest {
@@ -34,8 +41,24 @@ impl ReviewedRequest {
         match self {
             Self::Policy(package) => package.approve_and_export_timed(seed, sink, clock),
             Self::Sweep(package) => package.approve_and_export_timed(seed, sink, clock),
+            Self::Rotation(package) => package.approve_and_export_timed(seed, sink, clock),
         }
     }
+
+    fn kind(&self) -> RequestKind {
+        match self {
+            Self::Policy(_) => RequestKind::Policy,
+            Self::Sweep(_) => RequestKind::Sweep,
+            Self::Rotation(_) => RequestKind::Rotation,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RequestKind {
+    Policy,
+    Sweep,
+    Rotation,
 }
 
 struct KeyOsSeedSource;
@@ -92,6 +115,14 @@ impl DevelopmentApprovedSink {
             fs: FileSystem::default(),
             temporary_file: SWEEP_TEMPORARY_FILE,
             approved_file: SWEEP_APPROVED_FILE,
+        }
+    }
+
+    fn rotation() -> Self {
+        Self {
+            fs: FileSystem::default(),
+            temporary_file: ROTATION_TEMPORARY_FILE,
+            approved_file: ROTATION_APPROVED_FILE,
         }
     }
 }
@@ -151,21 +182,22 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                 Err(error) => show_error(&ui, error),
             },
             1 => {
-                let is_sweep = matches!(
-                    reviewed_for_action.borrow().as_ref(),
-                    Some(ReviewedRequest::Sweep(_))
-                );
+                let kind = reviewed_for_action
+                    .borrow()
+                    .as_ref()
+                    .map(ReviewedRequest::kind)
+                    .unwrap_or(RequestKind::Policy);
                 ui.set_status_title(SharedString::from("Validating and signing..."));
-                ui.set_status_detail(SharedString::from(if is_sweep {
-                    "Checking the destination, amount, fee, vault inputs, and phone signatures before adding Prime approval."
-                } else {
-                    "Checking all 28 PSBTs and phone signatures before adding Prime approval."
+                ui.set_status_detail(SharedString::from(match kind {
+                    RequestKind::Sweep => "Checking the destination, amount, fee, vault inputs, and phone signatures before adding Prime approval.",
+                    RequestKind::Rotation => "Checking the old and new vaults, pending phone key, sweep, renewed policy, and authenticated recovery backup before adding Prime approval.",
+                    RequestKind::Policy => "Checking every policy PSBT and phone signature before adding Prime approval.",
                 }));
                 let mut seed = KeyOsSeedSource;
-                let mut sink = if is_sweep {
-                    DevelopmentApprovedSink::sweep()
-                } else {
-                    DevelopmentApprovedSink::policy()
+                let mut sink = match kind {
+                    RequestKind::Policy => DevelopmentApprovedSink::policy(),
+                    RequestKind::Sweep => DevelopmentApprovedSink::sweep(),
+                    RequestKind::Rotation => DevelopmentApprovedSink::rotation(),
                 };
                 let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
@@ -184,17 +216,17 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     Ok(receipt) => {
                         ui.set_stage(2);
                         ui.set_success(true);
-                        ui.set_status_title(SharedString::from(if is_sweep {
-                            "Approved sweep written"
-                        } else {
-                            "Approved package written"
+                        ui.set_status_title(SharedString::from(match kind {
+                            RequestKind::Policy => "Approved package written",
+                            RequestKind::Sweep => "Approved sweep written",
+                            RequestKind::Rotation => "Approved rotation written",
                         }));
                         ui.set_status_detail(SharedString::from(format!(
                             "{} PSBTs validated · {} HWW signatures added\n{}\n{}",
                             receipt.psbt_count,
                             receipt.hww_signature_count,
                             receipt.timing_summary(timing_context()),
-                            approved_destination(is_sweep),
+                            approved_destination(kind),
                         )));
                         log::info!(
                             "Anzen package approved: {} PSBTs, {} HWW signatures, validation {} ms, signing {} ms, total approval {} ms",
@@ -228,6 +260,24 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
             Ok(package) => {
                 show_sweep_review(&ui, &package);
                 *reviewed_for_sweep.borrow_mut() = Some(ReviewedRequest::Sweep(package));
+            }
+            Err(error) => show_error(&ui, error),
+        }
+    });
+
+    let ui_weak = ui.as_weak();
+    let reviewed_for_rotation = reviewed.clone();
+    ui.on_rotation_requested(move || {
+        let Some(ui) = ui_weak.upgrade() else {
+            return;
+        };
+        match read_rotation_import().and_then(|(proposal, config, pending, backup)| {
+            ReviewedPhoneRotationRequest::import(&proposal, &config, &pending, &backup)
+                .map_err(|_| "The files are not a valid Anzen phone-key rotation v1".to_string())
+        }) {
+            Ok(package) => {
+                show_rotation_review(&ui, &package);
+                *reviewed_for_rotation.borrow_mut() = Some(ReviewedRequest::Rotation(package));
             }
             Err(error) => show_error(&ui, error),
         }
@@ -279,6 +329,34 @@ fn read_sweep_import() -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
+#[cfg(keyos)]
+fn read_rotation_import() -> Result<(Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>), String> {
+    Ok((
+        read_usb_file(ROTATION_IMPORT_FILE)?,
+        read_usb_file(ROTATION_CONFIG_FILE)?,
+        read_usb_file(ROTATION_PENDING_FILE)?,
+        read_usb_file(ROTATION_BACKUP_FILE)?,
+    ))
+}
+
+#[cfg(keyos)]
+fn read_usb_file(name: &str) -> Result<Vec<u8>, String> {
+    let fs = FileSystem::default();
+    let file = fs
+        .open_file(name, fs::Location::Usb, fs::OpenFlags::READ_ONLY)
+        .map_err(|_| format!("Place {name} in the development USB folder and try again"))?;
+    let mut bytes = Vec::new();
+    file.take((anzen_policy_engine::MAX_PACKAGE_BYTES + 1) as u64)
+        .read_to_end(&mut bytes)
+        .map_err(|_| format!("{name} could not be read"))?;
+    Ok(bytes)
+}
+
+#[cfg(not(keyos))]
+fn read_rotation_import() -> Result<(Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>), String> {
+    Err("The rotation flow is proved by public Luke/regtest CI; no synthetic simulator rotation is bundled.".to_string())
+}
+
 #[cfg(not(keyos))]
 fn read_sweep_import() -> Result<Vec<u8>, String> {
     Ok(include_bytes!("../../fixtures/cooperative-sweep-v1/regtest-proposal.json").to_vec())
@@ -305,11 +383,11 @@ fn import_prompt() -> &'static str {
 }
 
 #[cfg(keyos)]
-fn approved_destination(is_sweep: bool) -> &'static str {
-    if is_sweep {
-        SWEEP_APPROVED_FILE
-    } else {
-        POLICY_APPROVED_FILE
+fn approved_destination(kind: RequestKind) -> &'static str {
+    match kind {
+        RequestKind::Policy => POLICY_APPROVED_FILE,
+        RequestKind::Sweep => SWEEP_APPROVED_FILE,
+        RequestKind::Rotation => ROTATION_APPROVED_FILE,
     }
 }
 
@@ -324,7 +402,7 @@ fn timing_context() -> &'static str {
 }
 
 #[cfg(not(keyos))]
-fn approved_destination(_is_sweep: bool) -> &'static str {
+fn approved_destination(_kind: RequestKind) -> &'static str {
     "Approved JSON saved in simulator app storage"
 }
 
@@ -386,6 +464,33 @@ fn show_sweep_review(ui: &AppWindow, package: &ReviewedCooperativeSweep) {
     ui.set_status_title(SharedString::from("Review before approving"));
     ui.set_status_detail(SharedString::from(
         "Approval will revalidate the destination, amount, fee, every vault input, and every phone signature before the Prime signing key is requested.",
+    ));
+}
+
+fn show_rotation_review(ui: &AppWindow, package: &ReviewedPhoneRotationRequest) {
+    let summary = package.summary();
+    ui.set_stage(1);
+    ui.set_success(false);
+    ui.set_operation_title(SharedString::from("Review phone-key rotation"));
+    ui.set_primary_label(SharedString::from("MOVE TO NEW VAULT"));
+    ui.set_secondary_label(SharedString::from("NEW VAULT ADDRESS"));
+    ui.set_tertiary_label(SharedString::from("POLICY + RECOVERY"));
+    ui.set_vault_amount(SharedString::from(btc(summary.sent_sats)));
+    ui.set_monthly_access(SharedString::from(summary.new_vault_address.clone()));
+    ui.set_emergency_access(SharedString::from(format!(
+        "{} policy PSBTs · {} recovery friends",
+        summary.policy_psbt_count, summary.recovery_friend_count
+    )));
+    ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
+    ui.set_fee_label(SharedString::from(format!("{} sats fee", summary.fee_sats)));
+    ui.set_transaction_label(SharedString::from(format!(
+        "{} vault input{}",
+        summary.input_count,
+        if summary.input_count == 1 { "" } else { "s" }
+    )));
+    ui.set_status_title(SharedString::from("Review before approving"));
+    ui.set_status_detail(SharedString::from(
+        "Approval will bind the pending phone key to the new vault, revalidate and sign the sweep and renewed policy, then authenticate and renew the recovery backup.",
     ));
 }
 
