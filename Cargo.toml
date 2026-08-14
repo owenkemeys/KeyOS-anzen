@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/anzen-prime-core",
+    "preview",
+    "vendor/anzen-cold-signer",
+]
+resolver = "2"

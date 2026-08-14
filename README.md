@@ -1,0 +1,83 @@
+# KeyOS Anzen
+
+## Anzen Prime Proof
+
+A minimal Passport Prime app that runs the largest hardware-wallet benchmark
+currently published by [Luke Childs' Anzen](https://github.com/lukechilds/anzen):
+28 Taproot transactions and 39 BIP340 Schnorr signatures in one approval.
+
+The point is deliberately narrow: Anzen's current Ledger and Trezor work is a
+benchmark, and the same benchmark can run as a native KeyOS app on Passport
+Prime.
+
+![Anzen Prime Proof Windows preview](screenshots/windows-preview.png)
+
+_Windows preview of the shared UI and signing core; this is not a Passport
+Prime simulator capture._
+
+## What the demo proves
+
+- Uses Anzen's actual allocation-free `anzen-cold-signer` benchmark, pinned to
+  upstream commit `01794bb14d34d01413e3b539c7e5496ecbce0c87`.
+- Derives a demo signing identity from KeyOS's app-isolated seed.
+- Reconstructs Anzen's 28-transaction annual policy workload.
+- Produces 39 real BIP340 Schnorr signatures for the 12-input case.
+- Verifies every signature and commits the run to a transcript hash.
+- Exposes only the public key and transcript; the app seed and private key stay
+  inside the app process.
+
+## What it does not claim
+
+This is a compatibility proof, not a production Anzen wallet. It does not yet
+parse Anzen policy packages, communicate with the Anzen phone app, persist a
+vault, or move funds. Those are protocol and product-integration steps after
+the hardware capability is demonstrated.
+
+## Repository layout
+
+- `vendor/anzen-cold-signer` — verbatim MIT-licensed upstream snapshot.
+- `crates/anzen-prime-core` — host-testable Prime signing integration.
+- `app` — thin native KeyOS/Slint shell.
+
+## Test the signing core
+
+```sh
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+```
+
+## Run the Windows preview
+
+The desktop preview uses the same signing core and the same 480×800 Slint UI,
+but substitutes a deterministic test app seed because KeyOS's app-isolated
+seed API exists only on Passport Prime:
+
+```powershell
+cargo run -p anzen-prime-preview --release
+```
+
+It is intentionally labeled **Windows preview** on screen. A screenshot of the
+preview proves the product flow and real 39-signature workload; only the later
+KeyOS simulator/device build proves the Prime platform integration.
+
+## Build for Passport Prime
+
+Install the current [Foundation Passport Prime SDK](https://foundation.xyz/developers),
+create a local signing identity, replace the placeholder `signing-identity` in
+`app/app-config.toml`, then run from the app directory:
+
+```sh
+foundation build
+foundation sim
+```
+
+The Prime SDK is currently a public beta and Foundation's supported host path
+is Linux or macOS. This repository was developed from Windows using an Ubuntu
+VM for the SDK build and simulator.
+
+## Attribution
+
+Anzen and `anzen-cold-signer` are by Luke Childs and licensed under MIT. The
+vendored snapshot retains Luke's license and has an explicit provenance note.
+The Prime integration is an independent proof and is not an official Anzen or
+Foundation product.

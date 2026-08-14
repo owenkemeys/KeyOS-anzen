@@ -1,0 +1,135 @@
+export component AppWindow inherits Window {
+    in-out property <string> status-title: "Ready to prove it";
+    in-out property <string> status-detail: "One approval runs Luke Childs' largest current Anzen hardware-wallet workload.";
+    in-out property <string> environment: "PASSPORT PRIME · KEYOS";
+    in-out property <bool> success: false;
+    callback run-requested();
+
+    title: "Anzen Prime Proof";
+    preferred-width: 480px;
+    preferred-height: 800px;
+    background: #111416;
+
+    VerticalLayout {
+        width: parent.width;
+        height: parent.height;
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-top: 46px;
+        padding-bottom: 26px;
+        spacing: 16px;
+
+        Text {
+            text: "ANZEN  ×  PRIME";
+            color: #f5a623;
+            font-family: "Montserrat";
+            font-size: 18px;
+            font-weight: 800;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: root.environment;
+            color: #929ba1;
+            font-family: "Montserrat";
+            font-size: 11px;
+            font-weight: 650;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: "Annual vault policy";
+            color: #ffffff;
+            font-family: "Montserrat";
+            font-size: 28px;
+            font-weight: 800;
+            horizontal-alignment: center;
+        }
+
+        Rectangle {
+            width: 100%;
+            height: 238px;
+            border-radius: 20px;
+            background: #1d2226;
+            border-width: 1px;
+            border-color: #343b40;
+
+            VerticalLayout {
+                padding: 20px;
+                spacing: 12px;
+
+                Text { text: "VAULT"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
+                Text { text: "2.1 BTC protected"; color: #ffffff; font-family: "Montserrat"; font-size: 23px; font-weight: 750; }
+                Rectangle { height: 1px; background: #343b40; }
+                Text { text: "MONTHLY ACCESS"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
+                Text { text: "0.1 BTC  ×  12 months"; color: #ffffff; font-family: "Montserrat"; font-size: 20px; font-weight: 650; }
+                Rectangle { height: 1px; background: #343b40; }
+                Text { text: "EMERGENCY"; color: #929ba1; font-family: "Montserrat"; font-size: 13px; font-weight: 700; }
+                Text { text: "0.5 BTC after 7 days"; color: #ffffff; font-family: "Montserrat"; font-size: 20px; font-weight: 650; }
+            }
+        }
+
+        Rectangle {
+            width: 100%;
+            height: 142px;
+            border-radius: 20px;
+            background: root.success ? #17382c : #171b1e;
+            border-width: 1px;
+            border-color: root.success ? #3ac47d : #343b40;
+
+            VerticalLayout {
+                padding: 18px;
+                spacing: 9px;
+                Text {
+                    text: root.success ? "✓  " + root.status-title : root.status-title;
+                    color: root.success ? #69dfa0 : #ffffff;
+                    font-family: "Montserrat";
+                    font-size: root.success ? 20px : 19px;
+                    font-weight: 750;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: root.status-detail;
+                    color: root.success ? #d6f7e4 : #aeb6bb;
+                    font-family: "Montserrat";
+                    font-size: 14px;
+                    font-weight: 500;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        Rectangle { vertical-stretch: 1; background: transparent; }
+
+        Rectangle {
+            width: 100%;
+            height: 64px;
+            border-radius: 28px;
+            background: touch.pressed ? #d98a12 : #f5a623;
+
+            Text {
+                width: parent.width;
+                height: parent.height;
+                text: root.success ? "Run proof again" : "Approve 28 transactions";
+                color: #111416;
+                font-family: "Montserrat";
+                font-size: 19px;
+                font-weight: 800;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            touch := TouchArea { clicked => { root.run-requested(); } }
+        }
+
+        Text {
+            text: "Runs lukechilds/anzen cold-signer @ 01794bb";
+            color: #727b81;
+            font-family: "Montserrat";
+            font-size: 12px;
+            font-weight: 500;
+            horizontal-alignment: center;
+        }
+    }
+}

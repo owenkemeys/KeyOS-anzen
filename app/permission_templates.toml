@@ -1,0 +1,23 @@
+[gui-app]
+"os/fs" = [
+    "OpenDirMessage",
+    "CloseDir",
+    "NextEntry",
+    "MapFileMessage",
+    "GetMetadata",
+]
+"os/gui-server" = [
+    "RegisterAppMessage",
+    "RequestRedraw",
+    "AnimateNextFrame",
+    "SubmitFrame",
+    "UpdateKeyboard",
+    "HideKeyboard",
+    "ShowModal",
+]
+"os/settings" = [
+    "GetSystemTheme",
+    "SubscribeSystemTheme",
+    "GetDebugTouch",
+    "SubscribeDebugTouch",
+]

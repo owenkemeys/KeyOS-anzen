@@ -1,0 +1,19 @@
+# Replace this identity with one created by `foundation cert create`.
+app-name = "anzen-prime-proof"
+friendly-app-name = "Anzen Prime Proof"
+launcher-app-name = "Anzen Proof"
+description = "Run Anzen's hardware-wallet signing workload on Passport Prime"
+icon = "resources/icon.svg"
+app-id = "0xa29e6e5072696d6550726f6f663031"
+version = "0.1.0"
+min-keyos-version = "1.0.0"
+signing-identity = "Anzen Prime Proof Developer"
+
+[publisher]
+name = "Anzen Prime Proof contributors"
+contact-email = "hello@example.com"
+support-url = "https://github.com/lukechilds/anzen"
+
+[permissions]
+template = ["gui-app"]
+"os/security" = ["GetAppSeed"]

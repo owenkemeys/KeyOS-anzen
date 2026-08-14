@@ -1,0 +1,6 @@
+schema: jarvis.project-pointer.v1
+project_id: keyos-anzen
+vault_root: /mnt/jarvis-data/obsidian/Foundation
+knowledge_path: Projects/KeyOS Anzen
+transfer_mode: device-bound
+registry: /mnt/jarvis-data/obsidian/Jarvis/Projects/Registry
