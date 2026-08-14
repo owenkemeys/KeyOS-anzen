@@ -8,14 +8,15 @@ Passport Prime simulator run from being conflated.
 ## Device-target build
 
 - [ ] Record the Foundation SDK version or commit.
-- [ ] Run `foundation doctor` successfully in the SDK environment.
-- [ ] Build from the public branch with `foundation build`.
+- [ ] Run `scripts/prime-sdk.sh doctor` successfully in the SDK environment.
+- [ ] Build from the public branch with `scripts/prime-sdk.sh build`.
 - [ ] Preserve the signed `app.elf` and `manifest.json` checksums outside Git.
 - [ ] Confirm no local signing identity or private path appears in committed files.
 
 ## Hosted simulator
 
-- [ ] Build through `foundation sim`; do not substitute the device `app.elf`.
+- [ ] Build through `scripts/prime-sdk.sh sim`; do not substitute the device
+      `app.elf`.
 - [ ] Confirm the simulator control channel reports the app launched.
 - [ ] Confirm the Anzen screen is visibly rendered, not merely a live process.
 - [ ] Run the proof and show 28 transactions, 39 signatures, and 39 verified.

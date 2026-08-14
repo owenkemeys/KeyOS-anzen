@@ -64,11 +64,12 @@ KeyOS simulator/device build proves the Prime platform integration.
 
 Install the current [Foundation Passport Prime SDK](https://foundation.xyz/developers),
 create a local signing identity, replace the placeholder `signing-identity` in
-`app/app-config.toml`, then run from the app directory:
+`app/app-config.toml`, then run from the repository root:
 
 ```sh
-foundation build
-foundation sim
+scripts/prime-sdk.sh doctor
+scripts/prime-sdk.sh build
+scripts/prime-sdk.sh sim
 ```
 
 The Prime SDK is currently a public beta and Foundation's supported host path
