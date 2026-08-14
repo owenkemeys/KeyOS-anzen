@@ -17,15 +17,27 @@ responsible disclosure.
 
 ## Policy-package proof boundary
 
-The host policy engine caps imported packages at 128 KiB, requires the exact
+The policy engine caps imported packages at 128 KiB, requires the exact
 manifest-to-PSBT set, validates the descriptor-bound recovery policy and full
 transaction graph, verifies phone signatures before signing, and writes an
 approved development file only after validation succeeds. These controls are
 compatibility safeguards, not a production security audit.
 
+The Prime app reads only the fixed development filename
+`anzen-policy-v4.json` from the USB filesystem. Import and review do not request
+app-seed material. A separate approval action obtains KeyOS's app-isolated seed,
+zeroizes the copied seed after identity derivation, revalidates before signing,
+writes a temporary file, and atomically renames it to
+`anzen-policy-v4-approved.json`. It does not log seed material, private keys,
+PSBT bodies, or approved JSON.
+
 The checked-in seed, mnemonic, UTXO, PSBTs, and addresses used by the fixture
 and regtest CI are deterministic disposable test vectors. They must never be
-reused for mainnet funds. The development adapter's seed argument exists only
-to reproduce the host proof; production KeyOS integration must obtain the
-app-isolated seed from the platform and must not expose it through files,
-arguments, logs, or transport.
+reused for mainnet funds. The host adapter's seed argument and the Prime USB
+file bridge exist only to reproduce development proofs; neither is a production
+transport or authorization design.
+
+The hosted simulator has no logged-in hardware seed session. Its build uses the
+fixture's deterministic test seed and labels that fact on screen. The
+`armv7a-unknown-xous-elf` device build excludes this fallback and obtains only
+the KeyOS-isolated app seed.

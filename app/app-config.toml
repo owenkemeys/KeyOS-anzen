@@ -15,4 +15,15 @@ support-url = "https://github.com/owenkemeys/KeyOS-anzen/issues"
 
 [permissions]
 template = ["gui-app"]
+"os/fs" = [
+    "CloseFile",
+    "Flush",
+    "GetUsbReadAccess",
+    "GetUsbWriteAccess",
+    "OpenFileMessage",
+    "ReadFile",
+    "Rename",
+    "TruncateFile",
+    "WriteFile",
+]
 "os/security" = ["GetAppSeed"]
