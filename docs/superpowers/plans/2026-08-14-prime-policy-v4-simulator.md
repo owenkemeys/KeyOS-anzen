@@ -32,4 +32,4 @@ real PolicyPackage v4 format.
 - [x] Prove the complete app builds as a signed `armv7a-unknown-xous-elf` bundle.
 - [x] Run and visually verify the hosted Prime simulator flow with the real fixture.
 - [x] Have the owner complete the compact simulator playtest card.
-- [ ] Push the focused PR, wait for CI, and record final durable evidence.
+- [x] Push the focused PR, wait for CI, and record final durable evidence.

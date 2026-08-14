@@ -13,6 +13,7 @@ not physical-device, phone-transport, hardware-seed, or real-funds evidence.
 - Foundation SDK package: `0.4.0-x86_64-unknown-linux-gnu`
 - Luke Childs' Anzen commit: `01794bb14d34d01413e3b539c7e5496ecbce0c87`
 - Hosted app process reported by the simulator: PID `19`
+- Public CI run: `31839917118` (Rust checks and Luke CLI regtest round trip passed)
 
 ## Transport and seed boundary
 
