@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "kind": "hww-recovery-snapshot",
+  "network": "regtest",
+  "vault_descriptor": "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,{multi_a(2,b90c0f8da23429c1f36288f53c46f50c54660804dcdd04fe342a3fd3d9e8c9ac,906979e124fa1d21104bbcfce84d825cb1269fa1dc95a0a27e9bfe120d88e97c),{and_v(v:older(61200),pk(b90c0f8da23429c1f36288f53c46f50c54660804dcdd04fe342a3fd3d9e8c9ac)),and_v(v:older(65535),pk(906979e124fa1d21104bbcfce84d825cb1269fa1dc95a0a27e9bfe120d88e97c))}})#a303ks35",
+  "destination": "bcrt1ppc630jlwa8nykupxpam7rknknpx8mljnll04kjn4cst6zm20t7rslwygna",
+  "tip_height": 65535,
+  "utxos": [
+    {
+      "txid": "0000000000000000000000000000000000000000000000000000000000000001",
+      "vout": 0,
+      "value_sats": 1000000,
+      "script_pubkey": "51200e3517cbeee9e64b70260f77e1da76984c7dfe53ffdf5b4a75c417a16d4f5f87",
+      "confirmation_height": 1
+    }
+  ]
+}

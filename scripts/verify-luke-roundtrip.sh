@@ -14,6 +14,9 @@ export COMPOSE_PROJECT_NAME="keyos-anzen-parity-$$"
 
 cleanup() {
     if [[ -f $upstream/compose.yaml ]]; then
+        COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+            --volume "$work_root:/work" --entrypoint sh cli -c \
+            'chmod -R a+rwX /work' >/dev/null 2>&1 || true
         docker compose --project-directory "$upstream" down --volumes --remove-orphans \
             >/dev/null 2>&1 || true
     fi
@@ -35,6 +38,37 @@ COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" up --detac
 anzen() {
     COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
         --volume "$work_root:/work" cli --data-dir /data "$@"
+}
+
+anzen_at() {
+    local data_dir=$1
+    shift
+    COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+        --volume "$work_root:/work" cli --data-dir "/work/$data_dir" "$@"
+}
+
+bitcoin_cli() {
+    COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" exec -T bitcoind \
+        bitcoin-cli -regtest -rpcconnect=127.0.0.1 -rpcuser=anzen -rpcpassword=anzen "$@"
+}
+
+mine_delayed_recovery_blocks() {
+    local destination=$1
+    local remaining=65534
+    local batch
+    local mock_time
+    mock_time=$(bitcoin_cli getblockheader "$(bitcoin_cli getbestblockhash)" | jq -r .time)
+    while ((remaining > 0)); do
+        batch=5000
+        if ((remaining < batch)); then
+            batch=$remaining
+        fi
+        mock_time=$((mock_time + batch + 1))
+        bitcoin_cli setmocktime "$mock_time" >/dev/null
+        bitcoin_cli generatetoaddress "$batch" "$destination" >/dev/null
+        remaining=$((remaining - batch))
+    done
+    bitcoin_cli setmocktime 0 >/dev/null
 }
 
 anzen phone init >/dev/null
@@ -113,6 +147,79 @@ printf '%s\n' "$sweep"
 printf '%s\n' "$sweep" | grep -q '^Cooperative vault sweep broadcast: '
 printf '%s\n' "$sweep" | grep -q '^Inputs: '
 printf '%s\n' "$sweep" | grep -q '^Fee: .* sats (1 sat/vB)$'
+anzen node mine 1 "$mining_address" >/dev/null
+
+for recovery_dir in luke-recovery prime-recovery; do
+    anzen_at "$recovery_dir" phone init >/dev/null
+    COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+        --volume "$work_root:/work" --entrypoint sh cli -c \
+        "mkdir -p /work/$recovery_dir/hww && printf '%s\\n' '{\"kind\":\"hww\",\"network\":\"regtest\",\"mnemonic\":\"$HWW_MNEMONIC\",\"vault_key_index\":0}' > /work/$recovery_dir/hww/device.json && printf '%s\\n' '{\"version\":1,\"kind\":\"hww-public-key\",\"network\":\"regtest\",\"vault_pubkey\":\"$HWW_PUBLIC_KEY\"}' > /work/$recovery_dir/hww/public.json"
+done
+
+luke_recovery_init=$(anzen_at luke-recovery init)
+luke_recovery_address=$(printf '%s\n' "$luke_recovery_init" | sed -n 's/^Vault address: //p')
+prime_recovery_init=$(anzen_at prime-recovery init)
+prime_recovery_address=$(printf '%s\n' "$prime_recovery_init" | sed -n 's/^Vault address: //p')
+test -n "$luke_recovery_address"
+test -n "$prime_recovery_address"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'chmod -R a+rX /work/luke-recovery /work/prime-recovery'
+
+recovery_funding_address=$(anzen phone receive-address | sed -n 's/^Hot receive address: //p')
+test -n "$recovery_funding_address"
+anzen node mine 101 "$recovery_funding_address" >/dev/null
+anzen phone send "$luke_recovery_address" 1000000 >/dev/null
+anzen phone send "$prime_recovery_address" 1000000 >/dev/null
+anzen node mine 1 "$mining_address" >/dev/null
+mine_delayed_recovery_blocks "$mining_address"
+
+luke_recovery=$(anzen_at luke-recovery hww recover "$mining_address")
+printf '%s\n' "$luke_recovery"
+printf '%s\n' "$luke_recovery" | grep -q '^HWW recovery sweep broadcast: '
+
+tip_height=$(bitcoin_cli getblockcount)
+prime_scan=$(bitcoin_cli scantxoutset start "[\"addr($prime_recovery_address)\"]")
+jq -n \
+    --arg destination "$mining_address" \
+    --argjson tip "$tip_height" \
+    --slurpfile config "$work_root/prime-recovery/anzen.json" \
+    --argjson scan "$prime_scan" \
+    '{
+      version: 1,
+      kind: "hww-recovery-snapshot",
+      network: $config[0].network,
+      vault_descriptor: $config[0].vault_descriptor,
+      destination: $destination,
+      tip_height: $tip,
+      utxos: [$scan.unspents[] | {
+        txid: .txid,
+        vout: .vout,
+        value_sats: (.amount * 100000000 | round),
+        script_pubkey: .scriptPubKey,
+        confirmation_height: .height
+      }]
+    }' >"$work_root/hww-recovery-snapshot.json"
+
+jq '.tip_height -= 1' "$work_root/hww-recovery-snapshot.json" \
+    >"$work_root/early-hww-recovery-snapshot.json"
+if "$repo_root/target/debug/anzen-prime-adapter" approve-hww-recovery \
+    "$work_root/early-hww-recovery-snapshot.json" \
+    "$work_root/early-hww-recovery-result.json" \
+    "$DEVELOPMENT_SEED"; then
+    echo "immature HWW recovery snapshot was unexpectedly approved" >&2
+    exit 1
+fi
+test ! -e "$work_root/early-hww-recovery-result.json"
+
+"$repo_root/target/debug/anzen-prime-adapter" approve-hww-recovery \
+    "$work_root/hww-recovery-snapshot.json" \
+    "$work_root/hww-recovery-result.json" \
+    "$DEVELOPMENT_SEED"
+recovery_hex=$(jq -r .transaction_hex "$work_root/hww-recovery-result.json")
+expected_recovery_txid=$(jq -r .txid "$work_root/hww-recovery-result.json")
+actual_recovery_txid=$(bitcoin_cli sendrawtransaction "$recovery_hex")
+test "$actual_recovery_txid" = "$expected_recovery_txid"
 
 printf 'Luke upstream: %s\n' "$UPSTREAM_COMMIT"
 printf 'Proposal SHA-256: '
@@ -127,4 +234,6 @@ printf 'Rotation proposal SHA-256: '
 sha256sum "$work_root/rotation.json" | cut -d' ' -f1
 printf 'Approved rotation SHA-256: '
 sha256sum "$work_root/approved-rotation.json" | cut -d' ' -f1
-printf 'Real regtest policy-package, phone-rotation, and cooperative-sweep round trips passed.\n'
+printf 'HWW recovery result SHA-256: '
+sha256sum "$work_root/hww-recovery-result.json" | cut -d' ' -f1
+printf 'Real regtest policy-package, phone-rotation, cooperative-sweep, and delayed-HWW-recovery round trips passed.\n'

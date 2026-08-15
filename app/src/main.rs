@@ -1,6 +1,6 @@
 use anzen_prime_core::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, ReviewedCooperativeSweep,
-    ReviewedPhoneRotationRequest, ReviewedPolicyPackage,
+    ReviewedHwwRecoveryRequest, ReviewedPhoneRotationRequest, ReviewedPolicyPackage,
 };
 use slint_keyos_platform::{app_ui, slint::SharedString};
 use std::{cell::RefCell, io::Write, rc::Rc, time::Instant};
@@ -24,11 +24,15 @@ const ROTATION_PENDING_FILE: &str = "anzen-pending-phone-rotation-v1.json";
 const ROTATION_BACKUP_FILE: &str = "anzen-current-phone-backup-v1.json";
 const ROTATION_APPROVED_FILE: &str = "anzen-rotation-v1-approved.json";
 const ROTATION_TEMPORARY_FILE: &str = ".anzen-rotation-v1-approved.tmp";
+const HWW_RECOVERY_IMPORT_FILE: &str = "anzen-hww-recovery-snapshot-v1.json";
+const HWW_RECOVERY_APPROVED_FILE: &str = "anzen-hww-recovery-transaction-v1.json";
+const HWW_RECOVERY_TEMPORARY_FILE: &str = ".anzen-hww-recovery-transaction-v1.tmp";
 
 enum ReviewedRequest {
     Policy(ReviewedPolicyPackage),
     Sweep(ReviewedCooperativeSweep),
     Rotation(ReviewedPhoneRotationRequest),
+    HwwRecovery(ReviewedHwwRecoveryRequest),
 }
 
 impl ReviewedRequest {
@@ -42,6 +46,7 @@ impl ReviewedRequest {
             Self::Policy(package) => package.approve_and_export_timed(seed, sink, clock),
             Self::Sweep(package) => package.approve_and_export_timed(seed, sink, clock),
             Self::Rotation(package) => package.approve_and_export_timed(seed, sink, clock),
+            Self::HwwRecovery(package) => package.approve_and_export_timed(seed, sink, clock),
         }
     }
 
@@ -50,6 +55,7 @@ impl ReviewedRequest {
             Self::Policy(_) => RequestKind::Policy,
             Self::Sweep(_) => RequestKind::Sweep,
             Self::Rotation(_) => RequestKind::Rotation,
+            Self::HwwRecovery(_) => RequestKind::HwwRecovery,
         }
     }
 }
@@ -59,6 +65,7 @@ enum RequestKind {
     Policy,
     Sweep,
     Rotation,
+    HwwRecovery,
 }
 
 struct KeyOsSeedSource;
@@ -123,6 +130,14 @@ impl DevelopmentApprovedSink {
             fs: FileSystem::default(),
             temporary_file: ROTATION_TEMPORARY_FILE,
             approved_file: ROTATION_APPROVED_FILE,
+        }
+    }
+
+    fn hww_recovery() -> Self {
+        Self {
+            fs: FileSystem::default(),
+            temporary_file: HWW_RECOVERY_TEMPORARY_FILE,
+            approved_file: HWW_RECOVERY_APPROVED_FILE,
         }
     }
 }
@@ -191,6 +206,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                 ui.set_status_detail(SharedString::from(match kind {
                     RequestKind::Sweep => "Checking the destination, amount, fee, vault inputs, and phone signatures before adding Prime approval.",
                     RequestKind::Rotation => "Checking the old and new vaults, pending phone key, sweep, renewed policy, and authenticated recovery backup before adding Prime approval.",
+                    RequestKind::HwwRecovery => "Checking the chain snapshot, 65,535-block maturity, vault inputs, destination, amount, and fee before signing the HWW-only recovery path.",
                     RequestKind::Policy => "Checking every policy PSBT and phone signature before adding Prime approval.",
                 }));
                 let mut seed = KeyOsSeedSource;
@@ -198,6 +214,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     RequestKind::Policy => DevelopmentApprovedSink::policy(),
                     RequestKind::Sweep => DevelopmentApprovedSink::sweep(),
                     RequestKind::Rotation => DevelopmentApprovedSink::rotation(),
+                    RequestKind::HwwRecovery => DevelopmentApprovedSink::hww_recovery(),
                 };
                 let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
@@ -220,6 +237,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                             RequestKind::Policy => "Approved package written",
                             RequestKind::Sweep => "Approved sweep written",
                             RequestKind::Rotation => "Approved rotation written",
+                            RequestKind::HwwRecovery => "Recovery transaction written",
                         }));
                         ui.set_status_detail(SharedString::from(format!(
                             "{} PSBTs validated · {} HWW signatures added\n{}\n{}",
@@ -283,6 +301,25 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
         }
     });
 
+    let ui_weak = ui.as_weak();
+    let reviewed_for_recovery = reviewed.clone();
+    ui.on_hww_recovery_requested(move || {
+        let Some(ui) = ui_weak.upgrade() else {
+            return;
+        };
+        match read_hww_recovery_import().and_then(|bytes| {
+            ReviewedHwwRecoveryRequest::import(&bytes).map_err(|_| {
+                "The file is not a valid mature Anzen HWW recovery snapshot v1".to_string()
+            })
+        }) {
+            Ok(package) => {
+                show_hww_recovery_review(&ui, &package);
+                *reviewed_for_recovery.borrow_mut() = Some(ReviewedRequest::HwwRecovery(package));
+            }
+            Err(error) => show_error(&ui, error),
+        }
+    });
+
     ui.run().expect("UI running");
 }
 
@@ -340,6 +377,16 @@ fn read_rotation_import() -> Result<(Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>), String
 }
 
 #[cfg(keyos)]
+fn read_hww_recovery_import() -> Result<Vec<u8>, String> {
+    read_usb_file(HWW_RECOVERY_IMPORT_FILE)
+}
+
+#[cfg(not(keyos))]
+fn read_hww_recovery_import() -> Result<Vec<u8>, String> {
+    Ok(include_bytes!("../../fixtures/hww-recovery-v1/regtest-snapshot.json").to_vec())
+}
+
+#[cfg(keyos)]
 fn read_usb_file(name: &str) -> Result<Vec<u8>, String> {
     let fs = FileSystem::default();
     let file = fs
@@ -388,6 +435,7 @@ fn approved_destination(kind: RequestKind) -> &'static str {
         RequestKind::Policy => POLICY_APPROVED_FILE,
         RequestKind::Sweep => SWEEP_APPROVED_FILE,
         RequestKind::Rotation => ROTATION_APPROVED_FILE,
+        RequestKind::HwwRecovery => HWW_RECOVERY_APPROVED_FILE,
     }
 }
 
@@ -491,6 +539,34 @@ fn show_rotation_review(ui: &AppWindow, package: &ReviewedPhoneRotationRequest) 
     ui.set_status_title(SharedString::from("Review before approving"));
     ui.set_status_detail(SharedString::from(
         "Approval will bind the pending phone key to the new vault, revalidate and sign the sweep and renewed policy, then authenticate and renew the recovery backup.",
+    ));
+}
+
+fn show_hww_recovery_review(ui: &AppWindow, package: &ReviewedHwwRecoveryRequest) {
+    let summary = package.summary();
+    ui.set_stage(1);
+    ui.set_success(false);
+    ui.set_operation_title(SharedString::from("Review delayed HWW recovery"));
+    ui.set_primary_label(SharedString::from("RECOVER"));
+    ui.set_secondary_label(SharedString::from("DESTINATION"));
+    ui.set_tertiary_label(SharedString::from("DELAY + INPUTS"));
+    ui.set_vault_amount(SharedString::from(btc(summary.sent_sats)));
+    ui.set_monthly_access(SharedString::from(summary.destination.clone()));
+    ui.set_emergency_access(SharedString::from(format!(
+        "{} blocks · {} input{}",
+        summary.delay_blocks,
+        summary.input_count,
+        if summary.input_count == 1 { "" } else { "s" }
+    )));
+    ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
+    ui.set_fee_label(SharedString::from(format!("{} sats fee", summary.fee_sats)));
+    ui.set_transaction_label(SharedString::from(format!(
+        "tip {}",
+        summary.snapshot_tip_height
+    )));
+    ui.set_status_title(SharedString::from("Review snapshot before signing"));
+    ui.set_status_detail(SharedString::from(
+        "This development snapshot is not a chain transport. Approval revalidates every prevout and signs only the mature 65,535-block HWW recovery leaf.",
     ));
 }
 

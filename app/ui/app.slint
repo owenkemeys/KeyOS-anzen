@@ -17,6 +17,7 @@ export component AppWindow inherits Window {
     callback primary-requested();
     callback sweep-requested();
     callback rotation-requested();
+    callback hww-recovery-requested();
 
     title: "Anzen Policy Approval";
     preferred-width: 480px;
@@ -169,6 +170,29 @@ export component AppWindow inherits Window {
                 vertical-alignment: center;
             }
             rotation-touch := TouchArea { clicked => { root.rotation-requested(); } }
+        }
+
+        Rectangle {
+            visible: root.stage == 0;
+            width: 100%;
+            height: 56px;
+            border-radius: 26px;
+            background: recovery-touch.pressed ? #2c3439 : #1d2226;
+            border-width: 1px;
+            border-color: #59636a;
+
+            Text {
+                width: parent.width;
+                height: parent.height;
+                text: "Import delayed HWW recovery";
+                color: #ffffff;
+                font-family: "Montserrat";
+                font-size: 16px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            recovery-touch := TouchArea { clicked => { root.hww-recovery-requested(); } }
         }
 
         Rectangle {

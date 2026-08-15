@@ -1,6 +1,6 @@
 use anzen_policy_engine::{
-    AnzenIdentity, CloudRecoveryBackup, CooperativeSweepPackage, DeviceFile, PhoneRotationPackage,
-    PolicyPackage, VaultConfig, MAX_PACKAGE_BYTES,
+    AnzenIdentity, CloudRecoveryBackup, CooperativeSweepPackage, DeviceFile, HwwRecoverySnapshot,
+    PhoneRotationPackage, PolicyPackage, VaultConfig, MAX_PACKAGE_BYTES,
 };
 use bitcoin::Network;
 use std::{
@@ -40,10 +40,42 @@ fn run() -> Result<(), String> {
     let result = match args[0].to_str() {
         Some("approve") => approve_file(&input, &output, &seed),
         Some("approve-sweep") => approve_sweep_file(&input, &output, &seed),
+        Some("approve-hww-recovery") => approve_hww_recovery_file(&input, &output, &seed),
         _ => Err("invalid command arguments".into()),
     };
     seed.fill(0);
     result
+}
+
+fn approve_hww_recovery_file(input: &Path, output: &Path, seed: &[u8; 32]) -> Result<(), String> {
+    let reviewed = HwwRecoverySnapshot::parse_bounded(&read_bounded(input)?)
+        .and_then(HwwRecoverySnapshot::review)
+        .map_err(|error| error.to_string())?;
+    let summary = reviewed.summary().clone();
+    let network = match summary.network.as_str() {
+        "regtest" => Network::Regtest,
+        "bitcoin" => Network::Bitcoin,
+        _ => return Err("unsupported Bitcoin network".into()),
+    };
+    let identity =
+        AnzenIdentity::from_app_seed(seed, network).map_err(|error| error.to_string())?;
+    let approved = reviewed
+        .approve(&identity)
+        .map_err(|error| error.to_string())?;
+    let signatures = approved.hww_signature_count();
+    let json = approved.to_json().map_err(|error| error.to_string())?;
+    atomic_write_new(output, &json)?;
+
+    println!("Validated and signed Anzen HWW recovery sweep");
+    println!("Network: {}", summary.network);
+    println!("Snapshot tip: {}", summary.snapshot_tip_height);
+    println!("Delay: {} blocks", summary.delay_blocks);
+    println!("Destination: {}", summary.destination);
+    println!("Inputs: {}", summary.input_count);
+    println!("Sent: {} sats", summary.sent_sats);
+    println!("Fee: {} sats", summary.fee_sats);
+    println!("HWW signatures: {signatures}");
+    Ok(())
 }
 
 fn approve_rotation_command(args: &[std::ffi::OsString]) -> Result<(), String> {
