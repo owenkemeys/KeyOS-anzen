@@ -20,9 +20,10 @@ pub use package::{
     PolicyPackage, MAX_PACKAGE_BYTES,
 };
 pub use rotation::{
-    ApprovedPhoneRotation, CloudRecoveryBackup, DeviceFile, EncryptedBlob, FriendKeyWrapper,
-    PhoneBackupSummary, PhoneRecoveryPackage, PhoneRotationPackage, PhoneRotationSummary,
-    RecoveryPayload, ReviewedPhoneBackup, ReviewedPhoneRotation, VaultConfig,
+    ApprovedPhoneRotation, ApprovedRecoveryFriend, CloudRecoveryBackup, DeviceFile, EncryptedBlob,
+    FriendKeyWrapper, PhoneBackupSummary, PhoneRecoveryPackage, PhoneRotationPackage,
+    PhoneRotationSummary, RecoveryFriendSummary, RecoveryPayload, ReviewedPhoneBackup,
+    ReviewedPhoneRotation, ReviewedRecoveryFriend, VaultConfig,
 };
 pub use signing::ApprovedPolicyPackage;
 pub use summary::PolicySummary;

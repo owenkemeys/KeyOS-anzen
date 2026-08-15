@@ -41,9 +41,10 @@ does not define a phone transport.
 ## Honest boundary
 
 This is host, Luke/Bitcoin Core regtest, and signed Prime target-build evidence.
-It is not simulator or physical-device execution. Public regtest proves the
-no-friend rotation path. When existing friends are present, this slice preserves
-their authenticated symmetric key and OpenPGP wrappers; Luke's fresh-key
-OpenPGP re-wrapping remains explicitly assigned to the recovery-friend slice.
-No Bluetooth, QR, USB protocol, mainnet release, Prime-side chain access, or
-Prime-side broadcast is added.
+It is not simulator or physical-device execution. The later recovery-friend
+slice closes the original no-friend limitation: public regtest now proves that
+an enrolled friend keeps the same fingerprint but receives a different
+OpenPGP wrapper under the rotated backup key, and unchanged Luke decrypts the
+post-rotation package through both friend and HWW paths. No Bluetooth, QR, USB
+protocol, mainnet release, Prime-side chain access, or Prime-side broadcast is
+added.

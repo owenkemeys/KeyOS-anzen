@@ -6,6 +6,7 @@ use crate::{
     policy::VaultPolicy, AnzenIdentity, CooperativeSweepPackage, PolicyError, PolicyPackage,
     MAX_PACKAGE_BYTES,
 };
+use base64::{engine::general_purpose::STANDARD, Engine};
 use bip39::{Language, Mnemonic};
 use bitcoin::{
     bip32::{DerivationPath, Xpriv},
@@ -17,6 +18,12 @@ use chacha20poly1305::{
     XChaCha20Poly1305, XNonce,
 };
 use hkdf::Hkdf;
+use pgp::{
+    composed::{ArmorOptions, Deserializable, MessageBuilder, SignedPublicKey},
+    crypto::sym::SymmetricKeyAlgorithm,
+    types::{KeyDetails, PublicKeyTrait},
+};
+use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::str::FromStr;
@@ -117,12 +124,33 @@ pub struct PhoneBackupSummary {
     pub recovery_friend_count: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoveryFriendSummary {
+    pub fingerprint: String,
+    pub network: String,
+    pub vault_address: String,
+    pub current_friend_count: usize,
+}
+
 #[derive(Clone)]
 pub struct ReviewedPhoneBackup {
     backup: CloudRecoveryBackup,
     config: VaultConfig,
     network: Network,
     summary: PhoneBackupSummary,
+}
+
+#[derive(Clone)]
+pub struct ReviewedRecoveryFriend {
+    backup: CloudRecoveryBackup,
+    config: VaultConfig,
+    public_key: Vec<u8>,
+    summary: RecoveryFriendSummary,
+}
+
+pub struct ApprovedRecoveryFriend {
+    backup: CloudRecoveryBackup,
+    fingerprint: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -216,6 +244,93 @@ impl CloudRecoveryBackup {
             network,
             summary,
         })
+    }
+
+    pub fn review_friend_enrollment(
+        self,
+        config: VaultConfig,
+        public_key: &[u8],
+    ) -> Result<ReviewedRecoveryFriend, PolicyError> {
+        if config.version != 1 {
+            return Err(PolicyError::UnsupportedPackage);
+        }
+        parse_network(&config.network)?;
+        let public = parse_friend_public_key(public_key)?;
+        let fingerprint = public.fingerprint().to_string();
+        Ok(ReviewedRecoveryFriend {
+            summary: RecoveryFriendSummary {
+                fingerprint,
+                network: config.network.clone(),
+                vault_address: config.vault_address.clone(),
+                current_friend_count: self.friends.len(),
+            },
+            backup: self,
+            config,
+            public_key: public_key.to_vec(),
+        })
+    }
+}
+
+impl ReviewedRecoveryFriend {
+    pub fn summary(&self) -> &RecoveryFriendSummary {
+        &self.summary
+    }
+
+    pub fn approve(self, identity: &AnzenIdentity) -> Result<ApprovedRecoveryFriend, PolicyError> {
+        if identity.public_key().to_string() != self.config.hww_vault_pubkey {
+            return invalid("HWW key does not match the configured vault policy");
+        }
+        let payload = decrypt_backup(&self.backup, identity.hww_seed())?;
+        validate_payload(&payload, &self.config, self.config.network()?)?;
+        let symmetric_key = decrypt_blob(
+            identity.hww_seed(),
+            HWW_KEY_PURPOSE,
+            &self.backup.hww_encrypted_symmetric_key,
+        )?;
+        if symmetric_key.len() != 32 {
+            return invalid("cloud backup contains an invalid symmetric key");
+        }
+        validate_friend_manifest(&self.backup, &symmetric_key)?;
+        let wrapper = wrap_for_friend(&self.public_key, &symmetric_key)?;
+        if self
+            .backup
+            .friends
+            .iter()
+            .any(|friend| friend.fingerprint == wrapper.fingerprint)
+        {
+            return invalid("recovery friend is already configured");
+        }
+        let fingerprint = wrapper.fingerprint.clone();
+        let mut backup = self.backup;
+        backup.friends.push(wrapper);
+        backup
+            .friends
+            .sort_by(|left, right| left.fingerprint.cmp(&right.fingerprint));
+        let friend_bytes =
+            serde_json::to_vec(&backup.friends).map_err(|_| PolicyError::Serialization)?;
+        backup.encrypted_friend_manifest =
+            encrypt_blob(&symmetric_key, FRIEND_MANIFEST_PURPOSE, &friend_bytes)?;
+        Ok(ApprovedRecoveryFriend {
+            backup,
+            fingerprint,
+        })
+    }
+}
+
+impl ApprovedRecoveryFriend {
+    pub fn backup(&self) -> &CloudRecoveryBackup {
+        &self.backup
+    }
+
+    pub fn fingerprint(&self) -> &str {
+        &self.fingerprint
+    }
+
+    pub fn to_json(&self) -> Result<Vec<u8>, PolicyError> {
+        let mut json =
+            serde_json::to_vec_pretty(&self.backup).map_err(|_| PolicyError::Serialization)?;
+        json.push(b'\n');
+        Ok(json)
     }
 }
 
@@ -509,26 +624,73 @@ fn rotate_backup(
     )?;
     validate_friend_manifest(backup, &existing_key)?;
     let payload_bytes = serde_json::to_vec(payload).map_err(|_| PolicyError::Serialization)?;
-    // Friend wrappers encrypt the symmetric key. Until the dedicated friend-management
-    // slice adds OpenPGP re-wrapping, preserve that authenticated key when friends exist.
-    let symmetric_key = if backup.friends.is_empty() {
-        derive_rotation_key(hww_seed, backup, &payload_bytes)?
-    } else {
-        existing_key
-    };
-    let friend_bytes =
-        serde_json::to_vec(&backup.friends).map_err(|_| PolicyError::Serialization)?;
+    let symmetric_key = derive_rotation_key(hww_seed, backup, &payload_bytes)?;
+    let mut friends = Vec::with_capacity(backup.friends.len());
+    for friend in &backup.friends {
+        friends.push(wrap_for_friend(
+            friend.public_key_armored.as_bytes(),
+            &symmetric_key,
+        )?);
+    }
+    friends.sort_by(|left, right| left.fingerprint.cmp(&right.fingerprint));
+    friends.dedup_by(|left, right| left.fingerprint == right.fingerprint);
+    let friend_bytes = serde_json::to_vec(&friends).map_err(|_| PolicyError::Serialization)?;
     Ok(CloudRecoveryBackup {
         version: 1,
         kind: "vault-cloud-recovery".to_owned(),
         encrypted_payload: encrypt_blob(&symmetric_key, PAYLOAD_PURPOSE, &payload_bytes)?,
         hww_encrypted_symmetric_key: encrypt_blob(hww_seed, HWW_KEY_PURPOSE, &symmetric_key)?,
-        friends: backup.friends.clone(),
+        friends,
         encrypted_friend_manifest: encrypt_blob(
             &symmetric_key,
             FRIEND_MANIFEST_PURPOSE,
             &friend_bytes,
         )?,
+    })
+}
+
+fn parse_friend_public_key(public_key: &[u8]) -> Result<SignedPublicKey, PolicyError> {
+    let (public, _) = SignedPublicKey::from_reader_single(public_key)
+        .map_err(|_| PolicyError::InvalidPolicy("invalid recovery-friend OpenPGP public key"))?;
+    public.verify().map_err(|_| {
+        PolicyError::InvalidPolicy("recovery-friend OpenPGP self-signature is invalid")
+    })?;
+    if !public
+        .public_subkeys
+        .iter()
+        .any(|subkey| subkey.is_encryption_key())
+    {
+        return invalid("recovery-friend OpenPGP key has no encryption-capable subkey");
+    }
+    Ok(public)
+}
+
+fn wrap_for_friend(
+    public_key: &[u8],
+    symmetric_key: &[u8],
+) -> Result<FriendKeyWrapper, PolicyError> {
+    let public = parse_friend_public_key(public_key)?;
+    let encryption_subkey = public
+        .public_subkeys
+        .iter()
+        .find(|subkey| subkey.is_encryption_key())
+        .ok_or(PolicyError::InvalidPolicy(
+            "recovery-friend OpenPGP key has no encryption-capable subkey",
+        ))?;
+    let mut builder = MessageBuilder::from_bytes("vault-recovery-key", symmetric_key.to_vec())
+        .seipd_v1(thread_rng(), SymmetricKeyAlgorithm::AES256);
+    builder
+        .encrypt_to_key(thread_rng(), encryption_subkey)
+        .map_err(|_| PolicyError::Serialization)?;
+    let encrypted = builder
+        .to_vec(thread_rng())
+        .map_err(|_| PolicyError::Serialization)?;
+    Ok(FriendKeyWrapper {
+        fingerprint: public.fingerprint().to_string(),
+        public_key_armored: public
+            .to_armored_string(ArmorOptions::default())
+            .map_err(|_| PolicyError::Serialization)?,
+        encrypted_symmetric_key: STANDARD.encode(encrypted),
     })
 }
 
@@ -655,6 +817,14 @@ fn invalid<T>(message: &'static str) -> Result<T, PolicyError> {
 #[cfg(test)]
 mod phone_backup_tests {
     use super::*;
+    use pgp::{
+        composed::{
+            ArmorOptions, KeyType, SecretKeyParamsBuilder, SignedPublicKey, SubkeyParamsBuilder,
+        },
+        crypto::ecc_curve::ECCCurve,
+        types::Password,
+    };
+    use rand::thread_rng;
 
     const PHONE_MNEMONIC: &str = "drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark";
 
@@ -721,6 +891,33 @@ mod phone_backup_tests {
         (backup, config, identity)
     }
 
+    fn friend_public_key() -> String {
+        let mut encryption_subkey = SubkeyParamsBuilder::default();
+        encryption_subkey
+            .key_type(KeyType::ECDH(ECCCurve::Curve25519))
+            .can_sign(false)
+            .can_encrypt(true)
+            .can_authenticate(false);
+        let mut params = SecretKeyParamsBuilder::default();
+        params
+            .key_type(KeyType::Ed25519Legacy)
+            .can_certify(true)
+            .can_sign(false)
+            .can_encrypt(false)
+            .primary_user_id("Prime parity friend <friend@example.test>".to_owned())
+            .subkeys(vec![encryption_subkey.build().unwrap()]);
+        let secret = params
+            .build()
+            .unwrap()
+            .generate(thread_rng())
+            .unwrap()
+            .sign(&mut thread_rng(), &Password::empty())
+            .unwrap();
+        SignedPublicKey::from(secret)
+            .to_armored_string(ArmorOptions::default())
+            .unwrap()
+    }
+
     #[test]
     fn authenticated_backup_exports_lukes_version_two_recovery_package() {
         let (backup, config, identity) = fixture();
@@ -751,5 +948,90 @@ mod phone_backup_tests {
             .unwrap()
             .approve(&identity)
             .is_err());
+    }
+
+    #[test]
+    fn recovery_friend_enrollment_matches_lukes_authenticated_set_rules() {
+        let public_key = friend_public_key();
+        let (backup, config, identity) = fixture();
+        let reviewed = backup
+            .review_friend_enrollment(config.clone(), public_key.as_bytes())
+            .unwrap();
+        assert_eq!(reviewed.summary().current_friend_count, 0);
+        assert!(!reviewed.summary().fingerprint.is_empty());
+
+        let approved = reviewed.approve(&identity).unwrap();
+        assert_eq!(approved.backup().friends.len(), 1);
+        assert_eq!(
+            approved.backup().friends[0].fingerprint,
+            approved.fingerprint()
+        );
+
+        assert!(approved
+            .backup()
+            .clone()
+            .review_friend_enrollment(config, public_key.as_bytes())
+            .unwrap()
+            .approve(&identity)
+            .is_err());
+    }
+
+    #[test]
+    fn invalid_key_wrong_hww_and_tampered_manifest_never_enroll_a_friend() {
+        let public_key = friend_public_key();
+        let (backup, config, _) = fixture();
+        assert!(backup
+            .clone()
+            .review_friend_enrollment(config.clone(), b"not an OpenPGP key")
+            .is_err());
+
+        let wrong = AnzenIdentity::from_app_seed(&[0x43; 32], Network::Regtest).unwrap();
+        assert!(backup
+            .clone()
+            .review_friend_enrollment(config.clone(), public_key.as_bytes())
+            .unwrap()
+            .approve(&wrong)
+            .is_err());
+
+        let (mut backup, config, identity) = fixture();
+        backup.encrypted_friend_manifest.ciphertext[0] ^= 1;
+        assert!(backup
+            .review_friend_enrollment(config, public_key.as_bytes())
+            .unwrap()
+            .approve(&identity)
+            .is_err());
+    }
+
+    #[test]
+    fn rotation_uses_a_fresh_key_and_rewraps_every_enrolled_friend() {
+        let public_key = friend_public_key();
+        let (backup, config, identity) = fixture();
+        let approved = backup
+            .review_friend_enrollment(config, public_key.as_bytes())
+            .unwrap()
+            .approve(&identity)
+            .unwrap();
+        let before = approved.backup().clone();
+        let mut payload = decrypt_backup(&before, identity.hww_seed()).unwrap();
+        payload.phone_vault_key_index = 1;
+        let rotated = rotate_backup(&before, identity.hww_seed(), &payload).unwrap();
+
+        assert_eq!(rotated.friends.len(), 1);
+        assert_eq!(
+            rotated.friends[0].fingerprint,
+            before.friends[0].fingerprint
+        );
+        assert_ne!(
+            rotated.friends[0].encrypted_symmetric_key,
+            before.friends[0].encrypted_symmetric_key
+        );
+        assert_ne!(
+            rotated.hww_encrypted_symmetric_key.ciphertext,
+            before.hww_encrypted_symmetric_key.ciphertext
+        );
+        assert_eq!(
+            decrypt_backup(&rotated, identity.hww_seed()).unwrap(),
+            payload
+        );
     }
 }

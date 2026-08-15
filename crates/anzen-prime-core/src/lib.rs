@@ -10,12 +10,14 @@ use k256::{
 use sha2::{Digest, Sha256 as Sha2};
 
 mod backup_flow;
+mod friend_flow;
 mod hww_recovery_flow;
 mod policy_flow;
 mod rotation_flow;
 mod sweep_flow;
 
 pub use backup_flow::ReviewedPhoneBackupRequest;
+pub use friend_flow::ReviewedRecoveryFriendRequest;
 pub use hww_recovery_flow::ReviewedHwwRecoveryRequest;
 pub use policy_flow::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, PolicyFlowError,
