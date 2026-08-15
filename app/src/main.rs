@@ -13,6 +13,25 @@ security::use_api!();
 app_ui!("Anzen Policy Approval");
 
 #[cfg(keyos)]
+fn keyos_getrandom(buffer: &mut [u8]) -> Result<(), getrandom::Error> {
+    use std::num::NonZeroU32;
+
+    let security = Security::default();
+    for chunk in buffer.chunks_mut(32) {
+        let random = security.get_random().map_err(|_| {
+            let code = NonZeroU32::new(getrandom::Error::CUSTOM_START + 1)
+                .expect("custom getrandom error code");
+            getrandom::Error::from(code)
+        })?;
+        chunk.copy_from_slice(&random[..chunk.len()]);
+    }
+    Ok(())
+}
+
+#[cfg(keyos)]
+getrandom::register_custom_getrandom!(keyos_getrandom);
+
+#[cfg(keyos)]
 const POLICY_IMPORT_FILE: &str = "anzen-policy-v4.json";
 const POLICY_APPROVED_FILE: &str = "anzen-policy-v4-approved.json";
 const POLICY_TEMPORARY_FILE: &str = ".anzen-policy-v4-approved.tmp";
@@ -158,11 +177,19 @@ impl DevelopmentApprovedSink {
     }
 
     fn phone_backup() -> Self {
-        Self { fs: FileSystem::default(), temporary_file: BACKUP_TEMPORARY_FILE, approved_file: BACKUP_APPROVED_FILE }
+        Self {
+            fs: FileSystem::default(),
+            temporary_file: BACKUP_TEMPORARY_FILE,
+            approved_file: BACKUP_APPROVED_FILE,
+        }
     }
 
     fn recovery_friend() -> Self {
-        Self { fs: FileSystem::default(), temporary_file: FRIEND_TEMPORARY_FILE, approved_file: FRIEND_APPROVED_FILE }
+        Self {
+            fs: FileSystem::default(),
+            temporary_file: FRIEND_TEMPORARY_FILE,
+            approved_file: FRIEND_APPROVED_FILE,
+        }
     }
 }
 
@@ -353,10 +380,13 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
     let ui_weak = ui.as_weak();
     let reviewed_for_backup = reviewed.clone();
     ui.on_phone_backup_requested(move || {
-        let Some(ui) = ui_weak.upgrade() else { return; };
+        let Some(ui) = ui_weak.upgrade() else {
+            return;
+        };
         match read_phone_backup_import().and_then(|(backup, config)| {
-            ReviewedPhoneBackupRequest::import(&backup, &config)
-                .map_err(|_| "The files are not a valid descriptor-bound Anzen phone backup".to_string())
+            ReviewedPhoneBackupRequest::import(&backup, &config).map_err(|_| {
+                "The files are not a valid descriptor-bound Anzen phone backup".to_string()
+            })
         }) {
             Ok(package) => {
                 show_phone_backup_review(&ui, &package);
@@ -369,10 +399,13 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
     let ui_weak = ui.as_weak();
     let reviewed_for_friend = reviewed.clone();
     ui.on_recovery_friend_requested(move || {
-        let Some(ui) = ui_weak.upgrade() else { return; };
+        let Some(ui) = ui_weak.upgrade() else {
+            return;
+        };
         match read_recovery_friend_import().and_then(|(backup, config, public_key)| {
-            ReviewedRecoveryFriendRequest::import(&backup, &config, &public_key)
-                .map_err(|_| "The files are not a valid Anzen recovery-friend enrollment".to_string())
+            ReviewedRecoveryFriendRequest::import(&backup, &config, &public_key).map_err(|_| {
+                "The files are not a valid Anzen recovery-friend enrollment".to_string()
+            })
         }) {
             Ok(package) => {
                 show_recovery_friend_review(&ui, &package);
@@ -445,7 +478,10 @@ fn read_hww_recovery_import() -> Result<Vec<u8>, String> {
 
 #[cfg(keyos)]
 fn read_phone_backup_import() -> Result<(Vec<u8>, Vec<u8>), String> {
-    Ok((read_usb_file(BACKUP_IMPORT_FILE)?, read_usb_file(BACKUP_CONFIG_FILE)?))
+    Ok((
+        read_usb_file(BACKUP_IMPORT_FILE)?,
+        read_usb_file(BACKUP_CONFIG_FILE)?,
+    ))
 }
 
 #[cfg(keyos)]
@@ -668,7 +704,9 @@ fn show_phone_backup_review(ui: &AppWindow, package: &ReviewedPhoneBackupRequest
     ui.set_tertiary_label(SharedString::from("RECOVERY FRIENDS"));
     ui.set_vault_amount(SharedString::from(summary.vault_address.clone()));
     ui.set_monthly_access(SharedString::from(summary.network.to_uppercase()));
-    ui.set_emergency_access(SharedString::from(summary.recovery_friend_count.to_string()));
+    ui.set_emergency_access(SharedString::from(
+        summary.recovery_friend_count.to_string(),
+    ));
     ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
     ui.set_fee_label(SharedString::from("No transaction"));
     ui.set_transaction_label(SharedString::from("Recovery v2"));
@@ -686,7 +724,9 @@ fn show_recovery_friend_review(ui: &AppWindow, package: &ReviewedRecoveryFriendR
     ui.set_tertiary_label(SharedString::from("RECOVERY FRIENDS AFTER"));
     ui.set_vault_amount(SharedString::from(summary.fingerprint.clone()));
     ui.set_monthly_access(SharedString::from(summary.vault_address.clone()));
-    ui.set_emergency_access(SharedString::from((summary.current_friend_count + 1).to_string()));
+    ui.set_emergency_access(SharedString::from(
+        (summary.current_friend_count + 1).to_string(),
+    ));
     ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
     ui.set_fee_label(SharedString::from("No transaction"));
     ui.set_transaction_label(SharedString::from("1-of-N access"));
