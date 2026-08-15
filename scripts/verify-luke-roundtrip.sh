@@ -151,7 +151,7 @@ COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm -
 test -s "$work_root/approved-rotation.json"
 
 rotation=$(anzen phone activate-rotation /work/approved-rotation.json)
-printf '%s\n' "$rotation"
+printf '%s\n' "$rotation" | grep -v '^New phone mnemonic: '
 printf '%s\n' "$rotation" | grep -q '^Emergency phone-key rotation broadcast: '
 printf '%s\n' "$rotation" | grep -q '^Monthly policy preserved: 10000000 sats$'
 printf '%s\n' "$rotation" | grep -q '^Emergency access preserved: 50000000 sats$'
