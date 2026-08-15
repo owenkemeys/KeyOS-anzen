@@ -13,12 +13,12 @@ use bitcoin::{
     Network, OutPoint, Psbt,
 };
 use chacha20poly1305::{
-    aead::{rand_core::RngCore, Aead, KeyInit, OsRng},
+    aead::{Aead, KeyInit},
     XChaCha20Poly1305, XNonce,
 };
 use hkdf::Hkdf;
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 use std::str::FromStr;
 use zeroize::{Zeroize, Zeroizing};
 
@@ -430,16 +430,14 @@ fn rotate_backup(
         &backup.hww_encrypted_symmetric_key,
     )?;
     validate_friend_manifest(backup, &existing_key)?;
+    let payload_bytes = serde_json::to_vec(payload).map_err(|_| PolicyError::Serialization)?;
     // Friend wrappers encrypt the symmetric key. Until the dedicated friend-management
     // slice adds OpenPGP re-wrapping, preserve that authenticated key when friends exist.
     let symmetric_key = if backup.friends.is_empty() {
-        let mut key = Zeroizing::new(vec![0_u8; 32]);
-        OsRng.fill_bytes(key.as_mut_slice());
-        key
+        derive_rotation_key(hww_seed, backup, &payload_bytes)?
     } else {
         existing_key
     };
-    let payload_bytes = serde_json::to_vec(payload).map_err(|_| PolicyError::Serialization)?;
     let friend_bytes =
         serde_json::to_vec(&backup.friends).map_err(|_| PolicyError::Serialization)?;
     Ok(CloudRecoveryBackup {
@@ -494,7 +492,13 @@ fn encrypt_blob(
     let key = derive_key(seed, purpose)?;
     let cipher = XChaCha20Poly1305::new((&*key).into());
     let mut nonce = [0_u8; 24];
-    OsRng.fill_bytes(&mut nonce);
+    let digest = sha2::Sha256::digest(plaintext);
+    let hk = Hkdf::<Sha256>::new(Some(b"renewable-bitcoin-vault/mvp/v1/nonce"), seed);
+    let mut info = Vec::with_capacity(purpose.len() + digest.len());
+    info.extend_from_slice(purpose.as_bytes());
+    info.extend_from_slice(&digest);
+    hk.expand(&info, &mut nonce)
+        .map_err(|_| PolicyError::KeyDerivation)?;
     let ciphertext = cipher
         .encrypt(XNonce::from_slice(&nonce), plaintext)
         .map_err(|_| PolicyError::Serialization)?;
@@ -504,6 +508,27 @@ fn encrypt_blob(
         nonce,
         ciphertext,
     })
+}
+
+fn derive_rotation_key(
+    hww_seed: &[u8],
+    backup: &CloudRecoveryBackup,
+    payload_bytes: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, PolicyError> {
+    let mut transcript = Sha256::new();
+    transcript.update(b"cloud/vault-recovery-rotation-key/v1");
+    transcript.update(payload_bytes);
+    transcript.update(backup.encrypted_payload.nonce);
+    transcript.update(&backup.encrypted_payload.ciphertext);
+    let digest = transcript.finalize();
+    let hk = Hkdf::<Sha256>::new(
+        Some(b"renewable-bitcoin-vault/mvp/v1/rotation-key"),
+        hww_seed,
+    );
+    let mut key = Zeroizing::new(vec![0_u8; 32]);
+    hk.expand(&digest, key.as_mut_slice())
+        .map_err(|_| PolicyError::KeyDerivation)?;
+    Ok(key)
 }
 
 fn decrypt_blob(
