@@ -7,8 +7,11 @@ license = "MIT"
 [dependencies]
 bip39 = "2.2"
 bitcoin = { version = "0.32.9", features = ["base64", "serde"] }
+chacha20poly1305 = { version = "0.10", default-features = false, features = ["alloc"] }
+hkdf = "0.12"
 miniscript = { version = "12.3.5", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+sha2 = "0.10"
 thiserror = "2.0"
 zeroize = "1.8"

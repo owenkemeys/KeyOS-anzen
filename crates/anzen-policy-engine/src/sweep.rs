@@ -87,6 +87,9 @@ impl CooperativeSweepPackage {
         self,
         expected_hww: XOnlyPublicKey,
     ) -> Result<ValidatedCooperativeSweep, PolicyError> {
+        if self.version != SWEEP_PACKAGE_VERSION || self.kind != SWEEP_PACKAGE_KIND {
+            return Err(PolicyError::UnsupportedPackage);
+        }
         if !self.phone_approved || self.hww_approved {
             return invalid("invalid cooperative sweep approval state");
         }
@@ -221,6 +224,10 @@ impl ValidatedCooperativeSweep {
 }
 
 impl ApprovedCooperativeSweep {
+    pub(crate) fn into_package(self) -> CooperativeSweepPackage {
+        self.package
+    }
+
     pub fn hww_signature_count(&self) -> usize {
         self.hww_signature_count
     }

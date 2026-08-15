@@ -107,7 +107,7 @@ impl PolicyPackage {
         Ok(package)
     }
 
-    fn validate_envelope(&self) -> Result<(), PolicyError> {
+    pub(crate) fn validate_envelope(&self) -> Result<(), PolicyError> {
         if self.version != POLICY_PACKAGE_VERSION
             || self.kind != POLICY_PACKAGE_KIND
             || self.manifest.version != POLICY_PACKAGE_VERSION

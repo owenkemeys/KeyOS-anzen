@@ -75,6 +75,28 @@ printf '%s\n' "$activation" | grep -q '^Encrypted allowance transaction pairs: 1
 printf '%s\n' "$activation" | grep -q '^Active emergency access: 50000000 sats$'
 
 anzen node mine 1 "$mining_address" >/dev/null
+anzen phone rotate-key --output /work/rotation.json >/dev/null
+test -s "$work_root/rotation.json"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'cp /data/anzen.json /work/current-config.json && cp /data/phone/pending-rotation.json /work/pending-rotation.json && cp /data/cloud/phone-seed-backup.json /work/current-backup.json && chmod 0644 /work/rotation.json /work/current-config.json /work/pending-rotation.json /work/current-backup.json'
+
+"$repo_root/target/debug/anzen-prime-adapter" approve-rotation \
+    "$work_root/rotation.json" \
+    "$work_root/current-config.json" \
+    "$work_root/pending-rotation.json" \
+    "$work_root/current-backup.json" \
+    "$work_root/approved-rotation.json" \
+    "$DEVELOPMENT_SEED"
+test -s "$work_root/approved-rotation.json"
+
+rotation=$(anzen phone activate-rotation /work/approved-rotation.json)
+printf '%s\n' "$rotation"
+printf '%s\n' "$rotation" | grep -q '^Emergency phone-key rotation broadcast: '
+printf '%s\n' "$rotation" | grep -q '^Monthly policy preserved: 10000000 sats$'
+printf '%s\n' "$rotation" | grep -q '^Emergency access preserved: 50000000 sats$'
+
+anzen node mine 1 "$mining_address" >/dev/null
 anzen phone create-sweep "$mining_address" --output /work/sweep.json >/dev/null
 test -s "$work_root/sweep.json"
 COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
@@ -101,4 +123,8 @@ printf 'Sweep proposal SHA-256: '
 sha256sum "$work_root/sweep.json" | cut -d' ' -f1
 printf 'Approved sweep SHA-256: '
 sha256sum "$work_root/approved-sweep.json" | cut -d' ' -f1
-printf 'Real regtest policy-package and cooperative-sweep round trips passed.\n'
+printf 'Rotation proposal SHA-256: '
+sha256sum "$work_root/rotation.json" | cut -d' ' -f1
+printf 'Approved rotation SHA-256: '
+sha256sum "$work_root/approved-rotation.json" | cut -d' ' -f1
+printf 'Real regtest policy-package, phone-rotation, and cooperative-sweep round trips passed.\n'

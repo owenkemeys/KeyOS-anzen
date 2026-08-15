@@ -43,6 +43,7 @@ impl ValidatedPolicy {
 
 impl PolicyPackage {
     pub fn validate(self, expected_hww: XOnlyPublicKey) -> Result<ValidatedPolicy, PolicyError> {
+        self.validate_envelope()?;
         let network = parse_network(&self.manifest.network)?;
         if !self.manifest.phone_approved || self.manifest.hww_approved {
             return Err(PolicyError::InvalidPolicy("invalid approval state"));

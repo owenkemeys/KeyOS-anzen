@@ -10,12 +10,14 @@ use k256::{
 use sha2::{Digest, Sha256 as Sha2};
 
 mod policy_flow;
+mod rotation_flow;
 mod sweep_flow;
 
 pub use policy_flow::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, PolicyFlowError,
     ReviewedPolicyPackage,
 };
+pub use rotation_flow::ReviewedPhoneRotationRequest;
 pub use sweep_flow::ReviewedCooperativeSweep;
 
 const FIXED_PHONE_XONLY_PUBLIC_KEY: [u8; 32] = [
