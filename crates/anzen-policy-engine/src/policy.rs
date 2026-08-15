@@ -83,6 +83,30 @@ impl VaultPolicy {
             control_block,
         }
     }
+
+    pub fn hww_recovery_leaf(&self) -> VaultLeaf {
+        let secp = Secp256k1::verification_only();
+        let internal_key: XOnlyPublicKey = BIP341_NUMS_KEY.parse().expect("valid NUMS key");
+        let cooperative = cooperative_script(self.phone, self.hww);
+        let phone_recovery = recovery_script(self.phone, PHONE_RECOVERY_BLOCKS);
+        let hww_recovery = recovery_script(self.hww, HWW_RECOVERY_BLOCKS);
+        let spend_info = bitcoin::taproot::TaprootBuilder::new()
+            .add_leaf(1, cooperative)
+            .and_then(|builder| builder.add_leaf(2, phone_recovery))
+            .and_then(|builder| builder.add_leaf(2, hww_recovery.clone()))
+            .expect("fixed tree is valid")
+            .finalize(&secp, internal_key)
+            .expect("fixed tree is complete");
+        let leaf_version = LeafVersion::TapScript;
+        let control_block = spend_info
+            .control_block(&(hww_recovery.clone(), leaf_version))
+            .expect("HWW recovery leaf is in tree");
+        VaultLeaf {
+            leaf_hash: TapLeafHash::from_script(&hww_recovery, leaf_version),
+            script: hww_recovery,
+            control_block,
+        }
+    }
 }
 
 fn cooperative_script(phone: XOnlyPublicKey, hww: XOnlyPublicKey) -> ScriptBuf {
@@ -151,6 +175,22 @@ pub(crate) fn estimate_cooperative_vsize(
     for input in &mut estimated.input {
         let mut witness = bitcoin::Witness::new();
         witness.push([0_u8; 64]);
+        witness.push([0_u8; 64]);
+        witness.push(leaf.script.as_bytes());
+        witness.push(leaf.control_block.serialize());
+        input.witness = witness;
+    }
+    estimated.vsize() as u64
+}
+
+pub(crate) fn estimate_hww_recovery_vsize(
+    transaction: &bitcoin::Transaction,
+    policy: &VaultPolicy,
+) -> u64 {
+    let leaf = policy.hww_recovery_leaf();
+    let mut estimated = transaction.clone();
+    for input in &mut estimated.input {
+        let mut witness = bitcoin::Witness::new();
         witness.push([0_u8; 64]);
         witness.push(leaf.script.as_bytes());
         witness.push(leaf.control_block.serialize());

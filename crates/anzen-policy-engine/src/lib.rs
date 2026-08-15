@@ -1,5 +1,6 @@
 //! Host-testable Anzen policy-package validation and signing engine.
 
+mod hww_recovery;
 mod keys;
 mod package;
 mod policy;
@@ -9,6 +10,10 @@ mod summary;
 mod sweep;
 mod validation;
 
+pub use hww_recovery::{
+    ApprovedHwwRecovery, HwwRecoverySnapshot, HwwRecoverySummary, HwwRecoveryUtxo,
+    ReviewedHwwRecovery,
+};
 pub use keys::AnzenIdentity;
 pub use package::{
     AllowanceStep, BatchManifest, BatchTransaction, EmergencyAccessPolicy, PolicyError,
