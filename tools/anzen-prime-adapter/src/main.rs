@@ -25,6 +25,12 @@ fn run() -> Result<(), String> {
     ) {
         return approve_rotation_command(&args);
     }
+    if matches!(
+        args.first().and_then(|value| value.to_str()),
+        Some("decrypt-phone-backup")
+    ) {
+        return decrypt_phone_backup_command(&args);
+    }
     if args.len() != 4 {
         return Err("invalid command arguments".into());
     }
@@ -43,6 +49,53 @@ fn run() -> Result<(), String> {
         Some("approve-hww-recovery") => approve_hww_recovery_file(&input, &output, &seed),
         _ => Err("invalid command arguments".into()),
     };
+    seed.fill(0);
+    result
+}
+
+fn decrypt_phone_backup_command(args: &[std::ffi::OsString]) -> Result<(), String> {
+    if args.len() != 5 {
+        return Err("invalid command arguments".into());
+    }
+    let backup = CloudRecoveryBackup::parse_bounded(&read_bounded(Path::new(&args[1]))?)
+        .map_err(|error| error.to_string())?;
+    let config = VaultConfig::parse_bounded(&read_bounded(Path::new(&args[2]))?)
+        .map_err(|error| error.to_string())?;
+    let output = Path::new(&args[3]);
+    if output.exists() {
+        return Err("output file already exists".into());
+    }
+    let seed_text = args[4]
+        .to_str()
+        .ok_or_else(|| "development seed is not UTF-8".to_owned())?;
+    let mut seed = decode_seed(seed_text)?;
+    let result = (|| {
+        let summary_network = config.network.clone();
+        let network = match summary_network.as_str() {
+            "regtest" => Network::Regtest,
+            "bitcoin" | "mainnet" => Network::Bitcoin,
+            _ => return Err("unsupported Bitcoin network".into()),
+        };
+        let reviewed = backup
+            .review_for_recovery(config)
+            .map_err(|error| error.to_string())?;
+        let friend_count = reviewed.summary().recovery_friend_count;
+        let vault_address = reviewed.summary().vault_address.clone();
+        let identity =
+            AnzenIdentity::from_app_seed(&seed, network).map_err(|error| error.to_string())?;
+        let package = reviewed
+            .approve(&identity)
+            .map_err(|error| error.to_string())?;
+        atomic_write_new(
+            output,
+            &package.to_json().map_err(|error| error.to_string())?,
+        )?;
+        println!("Validated and decrypted Anzen phone backup");
+        println!("Network: {summary_network}");
+        println!("Vault address: {vault_address}");
+        println!("Recovery friends authenticated: {friend_count}");
+        Ok(())
+    })();
     seed.fill(0);
     result
 }

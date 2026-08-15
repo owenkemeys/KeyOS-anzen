@@ -130,6 +130,20 @@ printf '%s\n' "$rotation" | grep -q '^Emergency phone-key rotation broadcast: '
 printf '%s\n' "$rotation" | grep -q '^Monthly policy preserved: 10000000 sats$'
 printf '%s\n' "$rotation" | grep -q '^Emergency access preserved: 50000000 sats$'
 
+anzen hww decrypt-phone-backup /data/cloud/phone-seed-backup.json \
+    --output /work/luke-phone-recovery.json >/dev/null
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'cp /data/anzen.json /work/backup-config.json && cp /data/cloud/phone-seed-backup.json /work/phone-backup.json && chmod 0644 /work/luke-phone-recovery.json /work/backup-config.json /work/phone-backup.json'
+"$repo_root/target/debug/anzen-prime-adapter" decrypt-phone-backup \
+    "$work_root/phone-backup.json" \
+    "$work_root/backup-config.json" \
+    "$work_root/prime-phone-recovery.json" \
+    "$DEVELOPMENT_SEED"
+jq -S . "$work_root/luke-phone-recovery.json" >"$work_root/luke-phone-recovery.normalized.json"
+jq -S . "$work_root/prime-phone-recovery.json" >"$work_root/prime-phone-recovery.normalized.json"
+cmp "$work_root/luke-phone-recovery.normalized.json" "$work_root/prime-phone-recovery.normalized.json"
+
 anzen node mine 1 "$mining_address" >/dev/null
 anzen phone create-sweep "$mining_address" --output /work/sweep.json >/dev/null
 test -s "$work_root/sweep.json"

@@ -1,6 +1,7 @@
 use anzen_prime_core::{
     AppSeedSource, ApprovalClock, ApprovalReceipt, ApprovedPackageSink, ReviewedCooperativeSweep,
-    ReviewedHwwRecoveryRequest, ReviewedPhoneRotationRequest, ReviewedPolicyPackage,
+    ReviewedHwwRecoveryRequest, ReviewedPhoneBackupRequest, ReviewedPhoneRotationRequest,
+    ReviewedPolicyPackage,
 };
 use slint_keyos_platform::{app_ui, slint::SharedString};
 use std::{cell::RefCell, io::Write, rc::Rc, time::Instant};
@@ -27,12 +28,17 @@ const ROTATION_TEMPORARY_FILE: &str = ".anzen-rotation-v1-approved.tmp";
 const HWW_RECOVERY_IMPORT_FILE: &str = "anzen-hww-recovery-snapshot-v1.json";
 const HWW_RECOVERY_APPROVED_FILE: &str = "anzen-hww-recovery-transaction-v1.json";
 const HWW_RECOVERY_TEMPORARY_FILE: &str = ".anzen-hww-recovery-transaction-v1.tmp";
+const BACKUP_IMPORT_FILE: &str = "anzen-phone-backup-v1.json";
+const BACKUP_CONFIG_FILE: &str = "anzen-phone-backup-config-v1.json";
+const BACKUP_APPROVED_FILE: &str = "anzen-phone-recovery-v2.json";
+const BACKUP_TEMPORARY_FILE: &str = ".anzen-phone-recovery-v2.tmp";
 
 enum ReviewedRequest {
     Policy(ReviewedPolicyPackage),
     Sweep(ReviewedCooperativeSweep),
     Rotation(ReviewedPhoneRotationRequest),
     HwwRecovery(ReviewedHwwRecoveryRequest),
+    PhoneBackup(ReviewedPhoneBackupRequest),
 }
 
 impl ReviewedRequest {
@@ -47,6 +53,7 @@ impl ReviewedRequest {
             Self::Sweep(package) => package.approve_and_export_timed(seed, sink, clock),
             Self::Rotation(package) => package.approve_and_export_timed(seed, sink, clock),
             Self::HwwRecovery(package) => package.approve_and_export_timed(seed, sink, clock),
+            Self::PhoneBackup(package) => package.approve_and_export_timed(seed, sink, clock),
         }
     }
 
@@ -56,6 +63,7 @@ impl ReviewedRequest {
             Self::Sweep(_) => RequestKind::Sweep,
             Self::Rotation(_) => RequestKind::Rotation,
             Self::HwwRecovery(_) => RequestKind::HwwRecovery,
+            Self::PhoneBackup(_) => RequestKind::PhoneBackup,
         }
     }
 }
@@ -66,6 +74,7 @@ enum RequestKind {
     Sweep,
     Rotation,
     HwwRecovery,
+    PhoneBackup,
 }
 
 struct KeyOsSeedSource;
@@ -140,6 +149,10 @@ impl DevelopmentApprovedSink {
             approved_file: HWW_RECOVERY_APPROVED_FILE,
         }
     }
+
+    fn phone_backup() -> Self {
+        Self { fs: FileSystem::default(), temporary_file: BACKUP_TEMPORARY_FILE, approved_file: BACKUP_APPROVED_FILE }
+    }
 }
 
 impl ApprovedPackageSink for DevelopmentApprovedSink {
@@ -207,6 +220,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     RequestKind::Sweep => "Checking the destination, amount, fee, vault inputs, and phone signatures before adding Prime approval.",
                     RequestKind::Rotation => "Checking the old and new vaults, pending phone key, sweep, renewed policy, and authenticated recovery backup before adding Prime approval.",
                     RequestKind::HwwRecovery => "Checking the chain snapshot, 65,535-block maturity, vault inputs, destination, amount, and fee before signing the HWW-only recovery path.",
+                    RequestKind::PhoneBackup => "Authenticating the encrypted backup and friend manifest, then checking the mnemonic-derived phone key and every configured vault binding.",
                     RequestKind::Policy => "Checking every policy PSBT and phone signature before adding Prime approval.",
                 }));
                 let mut seed = KeyOsSeedSource;
@@ -215,6 +229,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                     RequestKind::Sweep => DevelopmentApprovedSink::sweep(),
                     RequestKind::Rotation => DevelopmentApprovedSink::rotation(),
                     RequestKind::HwwRecovery => DevelopmentApprovedSink::hww_recovery(),
+                    RequestKind::PhoneBackup => DevelopmentApprovedSink::phone_backup(),
                 };
                 let mut clock = SystemApprovalClock::start();
                 let result = reviewed_for_action
@@ -238,6 +253,7 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
                             RequestKind::Sweep => "Approved sweep written",
                             RequestKind::Rotation => "Approved rotation written",
                             RequestKind::HwwRecovery => "Recovery transaction written",
+                            RequestKind::PhoneBackup => "Phone recovery package written",
                         }));
                         ui.set_status_detail(SharedString::from(format!(
                             "{} PSBTs validated · {} HWW signatures added\n{}\n{}",
@@ -320,6 +336,22 @@ fn app_main(_cx: AppContext, ui: AppWindow) {
         }
     });
 
+    let ui_weak = ui.as_weak();
+    let reviewed_for_backup = reviewed.clone();
+    ui.on_phone_backup_requested(move || {
+        let Some(ui) = ui_weak.upgrade() else { return; };
+        match read_phone_backup_import().and_then(|(backup, config)| {
+            ReviewedPhoneBackupRequest::import(&backup, &config)
+                .map_err(|_| "The files are not a valid descriptor-bound Anzen phone backup".to_string())
+        }) {
+            Ok(package) => {
+                show_phone_backup_review(&ui, &package);
+                *reviewed_for_backup.borrow_mut() = Some(ReviewedRequest::PhoneBackup(package));
+            }
+            Err(error) => show_error(&ui, error),
+        }
+    });
+
     ui.run().expect("UI running");
 }
 
@@ -381,6 +413,16 @@ fn read_hww_recovery_import() -> Result<Vec<u8>, String> {
     read_usb_file(HWW_RECOVERY_IMPORT_FILE)
 }
 
+#[cfg(keyos)]
+fn read_phone_backup_import() -> Result<(Vec<u8>, Vec<u8>), String> {
+    Ok((read_usb_file(BACKUP_IMPORT_FILE)?, read_usb_file(BACKUP_CONFIG_FILE)?))
+}
+
+#[cfg(not(keyos))]
+fn read_phone_backup_import() -> Result<(Vec<u8>, Vec<u8>), String> {
+    Err("Phone-backup decryption is proved by host tests and public unchanged-Luke CI; no recovery secret is bundled in the simulator.".to_string())
+}
+
 #[cfg(not(keyos))]
 fn read_hww_recovery_import() -> Result<Vec<u8>, String> {
     Ok(include_bytes!("../../fixtures/hww-recovery-v1/regtest-snapshot.json").to_vec())
@@ -436,6 +478,7 @@ fn approved_destination(kind: RequestKind) -> &'static str {
         RequestKind::Sweep => SWEEP_APPROVED_FILE,
         RequestKind::Rotation => ROTATION_APPROVED_FILE,
         RequestKind::HwwRecovery => HWW_RECOVERY_APPROVED_FILE,
+        RequestKind::PhoneBackup => BACKUP_APPROVED_FILE,
     }
 }
 
@@ -568,6 +611,24 @@ fn show_hww_recovery_review(ui: &AppWindow, package: &ReviewedHwwRecoveryRequest
     ui.set_status_detail(SharedString::from(
         "This development snapshot is not a chain transport. Approval revalidates every prevout and signs only the mature 65,535-block HWW recovery leaf.",
     ));
+}
+
+fn show_phone_backup_review(ui: &AppWindow, package: &ReviewedPhoneBackupRequest) {
+    let summary = package.summary();
+    ui.set_stage(1);
+    ui.set_success(false);
+    ui.set_operation_title(SharedString::from("Review phone-backup recovery"));
+    ui.set_primary_label(SharedString::from("VAULT"));
+    ui.set_secondary_label(SharedString::from("NETWORK"));
+    ui.set_tertiary_label(SharedString::from("RECOVERY FRIENDS"));
+    ui.set_vault_amount(SharedString::from(summary.vault_address.clone()));
+    ui.set_monthly_access(SharedString::from(summary.network.to_uppercase()));
+    ui.set_emergency_access(SharedString::from(summary.recovery_friend_count.to_string()));
+    ui.set_network_label(SharedString::from(summary.network.to_uppercase()));
+    ui.set_fee_label(SharedString::from("No transaction"));
+    ui.set_transaction_label(SharedString::from("Recovery v2"));
+    ui.set_status_title(SharedString::from("Review before decrypting"));
+    ui.set_status_detail(SharedString::from("Approval authenticates the HWW envelope and friend manifest, then re-derives the phone key and checks every descriptor-bound vault field. Recovery words are never shown in logs."));
 }
 
 fn show_error(ui: &AppWindow, error: String) {

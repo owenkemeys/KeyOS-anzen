@@ -99,6 +99,32 @@ pub struct RecoveryPayload {
     pub vault_address: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PhoneRecoveryPackage {
+    pub version: u8,
+    pub kind: String,
+    pub phone_mnemonic: String,
+    pub phone_vault_key_index: u32,
+    pub phone_vault_pubkey: String,
+    pub vault_descriptor: String,
+    pub vault_address: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PhoneBackupSummary {
+    pub network: String,
+    pub vault_address: String,
+    pub recovery_friend_count: usize,
+}
+
+#[derive(Clone)]
+pub struct ReviewedPhoneBackup {
+    backup: CloudRecoveryBackup,
+    config: VaultConfig,
+    network: Network,
+    summary: PhoneBackupSummary,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PhoneRotationPackage {
     pub version: u8,
@@ -169,6 +195,58 @@ impl CloudRecoveryBackup {
             return Err(PolicyError::UnsupportedPackage);
         }
         Ok(backup)
+    }
+
+    pub fn review_for_recovery(
+        self,
+        config: VaultConfig,
+    ) -> Result<ReviewedPhoneBackup, PolicyError> {
+        if config.version != 1 {
+            return Err(PolicyError::UnsupportedPackage);
+        }
+        let network = config.network()?;
+        let summary = PhoneBackupSummary {
+            network: config.network.clone(),
+            vault_address: config.vault_address.clone(),
+            recovery_friend_count: self.friends.len(),
+        };
+        Ok(ReviewedPhoneBackup {
+            backup: self,
+            config,
+            network,
+            summary,
+        })
+    }
+}
+
+impl ReviewedPhoneBackup {
+    pub fn summary(&self) -> &PhoneBackupSummary {
+        &self.summary
+    }
+
+    pub fn approve(self, identity: &AnzenIdentity) -> Result<PhoneRecoveryPackage, PolicyError> {
+        if identity.public_key().to_string() != self.config.hww_vault_pubkey {
+            return invalid("HWW key does not match the configured vault policy");
+        }
+        let payload = decrypt_backup(&self.backup, identity.hww_seed())?;
+        validate_payload(&payload, &self.config, self.network)?;
+        Ok(PhoneRecoveryPackage {
+            version: 2,
+            kind: "phone-recovery".to_owned(),
+            phone_mnemonic: payload.phone_mnemonic,
+            phone_vault_key_index: payload.phone_vault_key_index,
+            phone_vault_pubkey: payload.phone_vault_pubkey,
+            vault_descriptor: payload.vault_descriptor,
+            vault_address: payload.vault_address,
+        })
+    }
+}
+
+impl PhoneRecoveryPackage {
+    pub fn to_json(&self) -> Result<Vec<u8>, PolicyError> {
+        let mut json = serde_json::to_vec_pretty(self).map_err(|_| PolicyError::Serialization)?;
+        json.push(b'\n');
+        Ok(json)
     }
 }
 
@@ -572,4 +650,106 @@ fn parse_network(name: &str) -> Result<Network, PolicyError> {
 
 fn invalid<T>(message: &'static str) -> Result<T, PolicyError> {
     Err(PolicyError::InvalidPolicy(message))
+}
+
+#[cfg(test)]
+mod phone_backup_tests {
+    use super::*;
+
+    const PHONE_MNEMONIC: &str = "drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark";
+
+    fn fixture() -> (CloudRecoveryBackup, VaultConfig, AnzenIdentity) {
+        let identity = AnzenIdentity::from_app_seed(&[0x42; 32], Network::Regtest).unwrap();
+        let phone = DeviceFile {
+            kind: "phone".into(),
+            network: "regtest".into(),
+            mnemonic: PHONE_MNEMONIC.into(),
+            vault_key_index: 0,
+        };
+        let phone_pubkey = derive_vault_pubkey(&phone, Network::Regtest)
+            .unwrap()
+            .to_string();
+        let config = VaultConfig {
+            version: 1,
+            network: "regtest".into(),
+            phone_vault_pubkey: phone_pubkey.clone(),
+            hww_vault_pubkey: identity.public_key().to_string(),
+            phone_hot_external_descriptor: "external".into(),
+            phone_hot_internal_descriptor: "internal".into(),
+            vault_descriptor: "descriptor".into(),
+            vault_address: "bcrt1ptest".into(),
+            phone_recovery_blocks: 61_200,
+            hww_recovery_blocks: 65_535,
+            monthly_limit_sats: 0,
+            emergency_access_limit_sats: 0,
+        };
+        let payload = RecoveryPayload {
+            version: 1,
+            kind: "vault-recovery-payload".into(),
+            network: "regtest".into(),
+            phone_mnemonic: PHONE_MNEMONIC.into(),
+            phone_vault_key_index: 0,
+            phone_vault_pubkey: phone_pubkey,
+            vault_descriptor: config.vault_descriptor.clone(),
+            vault_address: config.vault_address.clone(),
+        };
+        let symmetric_key = [7_u8; 32];
+        let friend_bytes = serde_json::to_vec(&Vec::<FriendKeyWrapper>::new()).unwrap();
+        let backup = CloudRecoveryBackup {
+            version: 1,
+            kind: "vault-cloud-recovery".into(),
+            encrypted_payload: encrypt_blob(
+                &symmetric_key,
+                PAYLOAD_PURPOSE,
+                &serde_json::to_vec(&payload).unwrap(),
+            )
+            .unwrap(),
+            hww_encrypted_symmetric_key: encrypt_blob(
+                identity.hww_seed(),
+                HWW_KEY_PURPOSE,
+                &symmetric_key,
+            )
+            .unwrap(),
+            friends: vec![],
+            encrypted_friend_manifest: encrypt_blob(
+                &symmetric_key,
+                FRIEND_MANIFEST_PURPOSE,
+                &friend_bytes,
+            )
+            .unwrap(),
+        };
+        (backup, config, identity)
+    }
+
+    #[test]
+    fn authenticated_backup_exports_lukes_version_two_recovery_package() {
+        let (backup, config, identity) = fixture();
+        let package = backup
+            .review_for_recovery(config)
+            .unwrap()
+            .approve(&identity)
+            .unwrap();
+        assert_eq!(package.version, 2);
+        assert_eq!(package.kind, "phone-recovery");
+        assert_eq!(package.phone_mnemonic, PHONE_MNEMONIC);
+    }
+
+    #[test]
+    fn wrong_hww_identity_and_tampered_manifest_fail_closed() {
+        let (backup, config, _) = fixture();
+        let wrong = AnzenIdentity::from_app_seed(&[0x43; 32], Network::Regtest).unwrap();
+        assert!(backup
+            .clone()
+            .review_for_recovery(config.clone())
+            .unwrap()
+            .approve(&wrong)
+            .is_err());
+        let (mut backup, config, identity) = fixture();
+        backup.encrypted_friend_manifest.ciphertext[0] ^= 1;
+        assert!(backup
+            .review_for_recovery(config)
+            .unwrap()
+            .approve(&identity)
+            .is_err());
+    }
 }
