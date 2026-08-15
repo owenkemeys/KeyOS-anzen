@@ -26,4 +26,4 @@ template = ["gui-app"]
     "TruncateFile",
     "WriteFile",
 ]
-"os/security" = ["GetAppSeed"]
+"os/security" = ["GetAppSeed", "GetRandom"]
