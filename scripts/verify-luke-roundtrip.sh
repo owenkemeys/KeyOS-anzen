@@ -162,6 +162,9 @@ prime_recovery_init=$(anzen_at prime-recovery init)
 prime_recovery_address=$(printf '%s\n' "$prime_recovery_init" | sed -n 's/^Vault address: //p')
 test -n "$luke_recovery_address"
 test -n "$prime_recovery_address"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'chmod -R a+rX /work/luke-recovery /work/prime-recovery'
 
 recovery_funding_address=$(anzen phone receive-address | sed -n 's/^Hot receive address: //p')
 test -n "$recovery_funding_address"
