@@ -11,8 +11,8 @@ turn this repository into a production wallet.
 | --- | --- | --- | --- | --- |
 | `hww init` | KeyOS supplies an app-isolated seed; the app derives and checks the descriptor-bound HWW identity only after explicit approval. | Host identity tests, owner-accepted hosted simulator approval, and a signed Prime target build. | Represented for the current approval flow; physical execution is unproved. | None |
 | `hww confirm-policy` | Import and review PolicyPackage v4, independently validate all 28 PSBTs and phone signatures, add HWW signatures, and atomically export Luke-compatible JSON. | 35 host release tests; public Luke CLI/Bitcoin Core regtest round trip; owner-accepted hosted simulator flow; signed target build. | Represented. | None |
-| `hww confirm-sweep` | Review a phone-signed immediate cooperative sweep, validate its descriptor, inputs, destination, amount, fee, and phone signatures, then add the HWW signatures. | Host engine/Prime-flow tests and public Luke CLI/Bitcoin Core regtest proposal-to-broadcast round trip. | Represented on host/regtest; simulator, target build, and physical execution are unproved. | None |
-| `hww confirm-rotation` | Review one phone-key rotation, its old-to-new vault sweep, preserved recovery-friend set, and optional renewed policy; approve the bound package in one ceremony. | Not yet implemented. | Missing. | [Phone-key rotation and renewed policy](#phone-key-rotation-and-renewed-policy) |
+| `hww confirm-sweep` | Review a phone-signed immediate cooperative sweep, validate its descriptor, inputs, destination, amount, fee, and phone signatures, then add the HWW signatures. | Host engine/Prime-flow tests, public Luke CLI/Bitcoin Core regtest proposal-to-broadcast round trip, and signed Prime target build. | Represented; physical execution is unproved. | None |
+| `hww confirm-rotation` | Review one phone-key rotation, its old-to-new vault sweep, preserved recovery-friend set, and optional renewed policy; approve the bound package in one ceremony. | Host tests, public Luke CLI/Bitcoin Core regtest proposal-to-activation round trip, post-rotation sweep, and signed Prime target build. | Represented for the no-friend path; physical execution and fresh-key friend re-wrapping are unproved. | [Recovery-friend wrapping and management](#recovery-friend-wrapping-and-management) |
 | `hww recover` | Review a destination and mature HWW-only recovery sweep using the 65,535-block path; sign only eligible vault UTXOs. | Not yet implemented. | Missing. | [Delayed HWW recovery sweep](#delayed-hww-recovery-sweep) |
 | `hww decrypt-phone-backup` | Authenticate and decrypt Luke's HWW-wrapped cloud envelope, validate the phone key and descriptor binding, and export the portable recovery package. | Not yet implemented. | Missing. | [Descriptor-bound phone-backup decryption](#descriptor-bound-phone-backup-decryption) |
 | `hww add-recovery-friend` | Review the trust expansion, validate the OpenPGP public key, wrap the existing backup key for that fingerprint, and preserve the authenticated friend manifest. | Not yet implemented. | Missing. | [Recovery-friend wrapping and management](#recovery-friend-wrapping-and-management) |
@@ -40,10 +40,11 @@ The phone remains responsible for proposal creation and final broadcast.
 
 ### Phone-key rotation and renewed policy
 
-Implement Luke's current combined rotation approval, including the cooperative
-sweep, descriptor change, preserved recovery-friend set, replacement cloud
-envelope, and optional renewed PolicyPackage. Do not generalize it into account
-or key management.
+Implemented for Luke's current combined rotation package, including the
+cooperative sweep, descriptor change, authenticated replacement cloud envelope,
+and optional renewed PolicyPackage. The dedicated recovery-friend slice still
+owns fresh-key OpenPGP re-wrapping when friends are configured. Do not generalize
+the operation into account or key management.
 
 ### Delayed HWW recovery sweep
 
