@@ -168,6 +168,9 @@ anzen social decrypt-backup /data/cloud/phone-seed-backup.json \
     --private-key /work/friend-private.asc \
     --output /work/friend-phone-recovery.json >/dev/null
 test -s "$work_root/friend-phone-recovery.json"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'chmod 0644 /work/friend-recovery-before-rotation.json /work/friend-phone-recovery.json'
 
 anzen hww decrypt-phone-backup /data/cloud/phone-seed-backup.json \
     --output /work/luke-phone-recovery.json >/dev/null
