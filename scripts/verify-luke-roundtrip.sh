@@ -108,6 +108,32 @@ printf '%s\n' "$activation" | grep -q '^Active monthly limit: 10000000 sats$'
 printf '%s\n' "$activation" | grep -q '^Encrypted allowance transaction pairs: 12$'
 printf '%s\n' "$activation" | grep -q '^Active emergency access: 50000000 sats$'
 
+anzen social generate-friend-key \
+    --name 'Prime parity friend <friend@example.test>' \
+    --public-key /work/friend-public.asc \
+    --private-key /work/friend-private.asc >/dev/null
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'cp /data/anzen.json /work/friend-config.json && cp /data/cloud/phone-seed-backup.json /work/friend-current-backup.json && chmod 0644 /work/friend-public.asc /work/friend-config.json /work/friend-current-backup.json'
+"$repo_root/target/debug/anzen-prime-adapter" add-recovery-friend \
+    "$work_root/friend-current-backup.json" \
+    "$work_root/friend-config.json" \
+    "$work_root/friend-public.asc" \
+    "$work_root/friend-added-backup.json" \
+    "$DEVELOPMENT_SEED"
+test "$(jq '.friends | length' "$work_root/friend-added-backup.json")" = 1
+friend_fingerprint=$(jq -r '.friends[0].fingerprint' "$work_root/friend-added-backup.json")
+old_friend_wrapper=$(jq -r '.friends[0].encrypted_symmetric_key' "$work_root/friend-added-backup.json")
+test -n "$friend_fingerprint"
+test -n "$old_friend_wrapper"
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'cp /work/friend-added-backup.json /data/cloud/phone-seed-backup.json'
+anzen social decrypt-backup /data/cloud/phone-seed-backup.json \
+    --private-key /work/friend-private.asc \
+    --output /work/friend-recovery-before-rotation.json >/dev/null
+test -s "$work_root/friend-recovery-before-rotation.json"
+
 anzen node mine 1 "$mining_address" >/dev/null
 anzen phone rotate-key --output /work/rotation.json >/dev/null
 test -s "$work_root/rotation.json"
@@ -130,6 +156,19 @@ printf '%s\n' "$rotation" | grep -q '^Emergency phone-key rotation broadcast: '
 printf '%s\n' "$rotation" | grep -q '^Monthly policy preserved: 10000000 sats$'
 printf '%s\n' "$rotation" | grep -q '^Emergency access preserved: 50000000 sats$'
 
+COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+    --volume "$work_root:/work" --entrypoint sh cli -c \
+    'cp /data/cloud/phone-seed-backup.json /work/rotated-phone-backup.json && chmod 0644 /work/rotated-phone-backup.json'
+test "$(jq '.friends | length' "$work_root/rotated-phone-backup.json")" = 1
+test "$(jq -r '.friends[0].fingerprint' "$work_root/rotated-phone-backup.json")" = "$friend_fingerprint"
+new_friend_wrapper=$(jq -r '.friends[0].encrypted_symmetric_key' "$work_root/rotated-phone-backup.json")
+test -n "$new_friend_wrapper"
+test "$new_friend_wrapper" != "$old_friend_wrapper"
+anzen social decrypt-backup /data/cloud/phone-seed-backup.json \
+    --private-key /work/friend-private.asc \
+    --output /work/friend-phone-recovery.json >/dev/null
+test -s "$work_root/friend-phone-recovery.json"
+
 anzen hww decrypt-phone-backup /data/cloud/phone-seed-backup.json \
     --output /work/luke-phone-recovery.json >/dev/null
 COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
@@ -143,6 +182,8 @@ COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm -
 jq -S . "$work_root/luke-phone-recovery.json" >"$work_root/luke-phone-recovery.normalized.json"
 jq -S . "$work_root/prime-phone-recovery.json" >"$work_root/prime-phone-recovery.normalized.json"
 cmp "$work_root/luke-phone-recovery.normalized.json" "$work_root/prime-phone-recovery.normalized.json"
+jq -S . "$work_root/friend-phone-recovery.json" >"$work_root/friend-phone-recovery.normalized.json"
+cmp "$work_root/luke-phone-recovery.normalized.json" "$work_root/friend-phone-recovery.normalized.json"
 
 anzen node mine 1 "$mining_address" >/dev/null
 anzen phone create-sweep "$mining_address" --output /work/sweep.json >/dev/null
@@ -248,6 +289,10 @@ printf 'Rotation proposal SHA-256: '
 sha256sum "$work_root/rotation.json" | cut -d' ' -f1
 printf 'Approved rotation SHA-256: '
 sha256sum "$work_root/approved-rotation.json" | cut -d' ' -f1
+printf 'Friend-enrolled backup SHA-256: '
+sha256sum "$work_root/friend-added-backup.json" | cut -d' ' -f1
+printf 'Rotated friend backup SHA-256: '
+sha256sum "$work_root/rotated-phone-backup.json" | cut -d' ' -f1
 printf 'HWW recovery result SHA-256: '
 sha256sum "$work_root/hww-recovery-result.json" | cut -d' ' -f1
-printf 'Real regtest policy-package, phone-rotation, cooperative-sweep, and delayed-HWW-recovery round trips passed.\n'
+printf 'Real regtest policy-package, recovery-friend, phone-rotation, cooperative-sweep, and delayed-HWW-recovery round trips passed.\n'
