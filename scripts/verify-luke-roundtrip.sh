@@ -144,6 +144,7 @@ prime_recovery_address=$(printf '%s\n' "$prime_recovery_init" | sed -n 's/^Vault
 test -n "$luke_recovery_address"
 test -n "$prime_recovery_address"
 
+anzen node mine 101 "$mining_address" >/dev/null
 anzen phone send "$luke_recovery_address" 1000000 >/dev/null
 anzen phone send "$prime_recovery_address" 1000000 >/dev/null
 anzen node mine 1 "$mining_address" >/dev/null
