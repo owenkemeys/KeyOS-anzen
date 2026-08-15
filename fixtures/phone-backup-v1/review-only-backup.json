@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "kind": "vault-cloud-recovery",
+  "encrypted_payload": { "version": 1, "purpose": "placeholder", "nonce": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "ciphertext": [] },
+  "hww_encrypted_symmetric_key": { "version": 1, "purpose": "placeholder", "nonce": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "ciphertext": [] },
+  "friends": [],
+  "encrypted_friend_manifest": { "version": 1, "purpose": "placeholder", "nonce": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "ciphertext": [] }
+}

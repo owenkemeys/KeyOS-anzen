@@ -21,8 +21,8 @@ pub use package::{
 };
 pub use rotation::{
     ApprovedPhoneRotation, CloudRecoveryBackup, DeviceFile, EncryptedBlob, FriendKeyWrapper,
-    PhoneRotationPackage, PhoneRotationSummary, RecoveryPayload, ReviewedPhoneRotation,
-    VaultConfig,
+    PhoneBackupSummary, PhoneRecoveryPackage, PhoneRotationPackage, PhoneRotationSummary,
+    RecoveryPayload, ReviewedPhoneBackup, ReviewedPhoneRotation, VaultConfig,
 };
 pub use signing::ApprovedPolicyPackage;
 pub use summary::PolicySummary;

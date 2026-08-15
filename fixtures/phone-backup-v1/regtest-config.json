@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "network": "regtest",
+  "phone_vault_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+  "hww_vault_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+  "phone_hot_external_descriptor": "external",
+  "phone_hot_internal_descriptor": "internal",
+  "vault_descriptor": "descriptor",
+  "vault_address": "bcrt1ptest-review-only",
+  "phone_recovery_blocks": 61200,
+  "hww_recovery_blocks": 65535,
+  "monthly_limit_sats": 0,
+  "emergency_access_limit_sats": 0
+}
