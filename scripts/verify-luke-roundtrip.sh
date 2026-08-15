@@ -14,6 +14,9 @@ export COMPOSE_PROJECT_NAME="keyos-anzen-parity-$$"
 
 cleanup() {
     if [[ -f $upstream/compose.yaml ]]; then
+        COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+            --volume "$work_root:/work" --entrypoint sh cli -c \
+            'chmod -R a+rwX /work' >/dev/null 2>&1 || true
         docker compose --project-directory "$upstream" down --volumes --remove-orphans \
             >/dev/null 2>&1 || true
     fi
@@ -129,13 +132,9 @@ anzen node mine 1 "$mining_address" >/dev/null
 
 for recovery_dir in luke-recovery prime-recovery; do
     anzen_at "$recovery_dir" phone init >/dev/null
-    mkdir -p "$work_root/$recovery_dir/hww"
-    printf '%s\n' \
-        "{\"kind\":\"hww\",\"network\":\"regtest\",\"mnemonic\":\"$HWW_MNEMONIC\",\"vault_key_index\":0}" \
-        >"$work_root/$recovery_dir/hww/device.json"
-    printf '%s\n' \
-        "{\"version\":1,\"kind\":\"hww-public-key\",\"network\":\"regtest\",\"vault_pubkey\":\"$HWW_PUBLIC_KEY\"}" \
-        >"$work_root/$recovery_dir/hww/public.json"
+    COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
+        --volume "$work_root:/work" --entrypoint sh cli -c \
+        "mkdir -p /work/$recovery_dir/hww && printf '%s\\n' '{\"kind\":\"hww\",\"network\":\"regtest\",\"mnemonic\":\"$HWW_MNEMONIC\",\"vault_key_index\":0}' > /work/$recovery_dir/hww/device.json && printf '%s\\n' '{\"version\":1,\"kind\":\"hww-public-key\",\"network\":\"regtest\",\"vault_pubkey\":\"$HWW_PUBLIC_KEY\"}' > /work/$recovery_dir/hww/public.json"
 done
 
 luke_recovery_init=$(anzen_at luke-recovery init)
