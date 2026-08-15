@@ -52,6 +52,25 @@ bitcoin_cli() {
         bitcoin-cli -regtest -rpcconnect=127.0.0.1 -rpcuser=anzen -rpcpassword=anzen "$@"
 }
 
+mine_delayed_recovery_blocks() {
+    local destination=$1
+    local remaining=65534
+    local batch
+    local mock_time
+    mock_time=$(bitcoin_cli getblockheader "$(bitcoin_cli getbestblockhash)" | jq -r .time)
+    while ((remaining > 0)); do
+        batch=5000
+        if ((remaining < batch)); then
+            batch=$remaining
+        fi
+        mock_time=$((mock_time + batch + 1))
+        bitcoin_cli setmocktime "$mock_time" >/dev/null
+        bitcoin_cli generatetoaddress "$batch" "$destination" >/dev/null
+        remaining=$((remaining - batch))
+    done
+    bitcoin_cli setmocktime 0 >/dev/null
+}
+
 anzen phone init >/dev/null
 anzen hww init >/dev/null
 COMPOSE_PROGRESS=quiet docker compose --project-directory "$upstream" run --rm --no-deps \
@@ -150,7 +169,7 @@ anzen node mine 101 "$recovery_funding_address" >/dev/null
 anzen phone send "$luke_recovery_address" 1000000 >/dev/null
 anzen phone send "$prime_recovery_address" 1000000 >/dev/null
 anzen node mine 1 "$mining_address" >/dev/null
-anzen node mine 65534 "$mining_address" >/dev/null
+mine_delayed_recovery_blocks "$mining_address"
 
 luke_recovery=$(anzen_at luke-recovery hww recover "$mining_address")
 printf '%s\n' "$luke_recovery"
