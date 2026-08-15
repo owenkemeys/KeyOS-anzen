@@ -12,10 +12,10 @@ turn this repository into a production wallet.
 | `hww init` | KeyOS supplies an app-isolated seed; the app derives and checks the descriptor-bound HWW identity only after explicit approval. | Host identity tests, owner-accepted hosted simulator approval, and a signed Prime target build. | Represented for the current approval flow; physical execution is unproved. | None |
 | `hww confirm-policy` | Import and review PolicyPackage v4, independently validate all 28 PSBTs and phone signatures, add HWW signatures, and atomically export Luke-compatible JSON. | 35 host release tests; public Luke CLI/Bitcoin Core regtest round trip; owner-accepted hosted simulator flow; signed target build. | Represented. | None |
 | `hww confirm-sweep` | Review a phone-signed immediate cooperative sweep, validate its descriptor, inputs, destination, amount, fee, and phone signatures, then add the HWW signatures. | Host engine/Prime-flow tests, public Luke CLI/Bitcoin Core regtest proposal-to-broadcast round trip, and signed Prime target build. | Represented; physical execution is unproved. | None |
-| `hww confirm-rotation` | Review one phone-key rotation, its old-to-new vault sweep, preserved recovery-friend set, and optional renewed policy; approve the bound package in one ceremony. | Host tests, public Luke CLI/Bitcoin Core regtest proposal-to-activation round trip, post-rotation sweep, and signed Prime target build. | Represented for the no-friend path; physical execution and fresh-key friend re-wrapping are unproved. | [Recovery-friend wrapping and management](#recovery-friend-wrapping-and-management) |
+| `hww confirm-rotation` | Review one phone-key rotation, its old-to-new vault sweep, preserved recovery-friend set, and optional renewed policy; approve the bound package in one ceremony. | Host tests, public unchanged-Luke proposal-to-activation and friend-decryption round trip, fresh-wrapper assertion, post-rotation sweep, and signed Prime target build. | Represented for Luke's current friend-preserving path; physical execution is unproved. | None |
 | `hww recover` | Review a destination and mature HWW-only recovery sweep using the 65,535-block path; sign only eligible vault UTXOs. | 52 host release tests; public unchanged-Luke and Bitcoin Core regtest recovery; early-snapshot rejection; Core acceptance of the Prime-signed raw transaction. | Represented on host/regtest; target, simulator, physical execution, and production chain transport are unproved. | None |
 | `hww decrypt-phone-backup` | Authenticate and decrypt Luke's HWW-wrapped cloud envelope, validate the phone key and descriptor binding, and export the portable recovery package. | 55 host release tests; unchanged-Luke semantic recovery-package comparison; signed Prime target build. | Represented; simulator and physical execution are unproved. | None |
-| `hww add-recovery-friend` | Review the trust expansion, validate the OpenPGP public key, wrap the existing backup key for that fingerprint, and preserve the authenticated friend manifest. | Not yet implemented. | Missing. | [Recovery-friend wrapping and management](#recovery-friend-wrapping-and-management) |
+| `hww add-recovery-friend` | Review the trust expansion, validate the OpenPGP public key, wrap the existing backup key for that fingerprint, and preserve the authenticated friend manifest. | 61 host release tests; unchanged-Luke friend decryption before and after fresh-key rotation; signed Prime target build with KeyOS hardware RNG; [physical test card](prime-recovery-friend-physical-test.md). | Represented; physical execution is unproved. | None |
 
 ## Evidence labels
 
@@ -42,9 +42,9 @@ The phone remains responsible for proposal creation and final broadcast.
 
 Implemented for Luke's current combined rotation package, including the
 cooperative sweep, descriptor change, authenticated replacement cloud envelope,
-and optional renewed PolicyPackage. The dedicated recovery-friend slice still
-owns fresh-key OpenPGP re-wrapping when friends are configured. Do not generalize
-the operation into account or key management.
+optional renewed PolicyPackage, and fresh symmetric-key OpenPGP re-wrapping for
+every authenticated recovery friend. Do not generalize the operation into
+account or key management.
 
 ### Delayed HWW recovery sweep
 
@@ -62,9 +62,11 @@ cloud service.
 
 ### Recovery-friend wrapping and management
 
-Implement Luke's current add-friend operation: one OpenPGP recipient wrapper
-and an authenticated friend manifest. Luke's current HWW surface has no friend
-removal or threshold command, so neither belongs in this parity program.
+Implemented for Luke's current add-friend operation: one validated OpenPGP
+recipient wrapper, sorted duplicate-free friend set, and authenticated friend
+manifest. Rotation renews the symmetric key and every stored wrapper. Luke's
+current HWW surface has no friend removal or threshold command, so neither is
+represented.
 
 ## Stopping line
 
